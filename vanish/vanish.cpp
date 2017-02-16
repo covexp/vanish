@@ -8,11 +8,11 @@
 using namespace cimg_library;
 using namespace std;
 
-#define WIDTH 480
-#define HEIGHT 480
-#define FRAMES 10
-#define BUCKETSIZE 32
-#define BUCKETS 256 / BUCKETSIZE
+const int WIDTH = 480;
+const int HEIGHT = 480;
+const int FRAMES = 10;
+const int BUCKETSIZE = 32;
+const int BUCKETS = 256 / BUCKETSIZE;
 
 string DIRECTORY = "logi";
 string FILESTEM = "salsa (";
