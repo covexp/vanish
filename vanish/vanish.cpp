@@ -12,7 +12,7 @@ const int MINVAL = 0;
 const int MAXVAL = 255;
 const int WIDTH = 480;
 const int HEIGHT = 480;
-const int FRAMES = 10;
+const int FRAMES = 40;
 const int BUCKETSIZE = 8;
 const int BUCKETS = (MAXVAL + 1) / BUCKETSIZE;
 
@@ -46,7 +46,7 @@ int main(void)
 {
 	cout << "Vanish - Version 0.01" << endl;
 
-	CImg<unsigned char> visu(WIDTH, HEIGHT, 1, 1, 0);
+	CImg<unsigned char> visu(WIDTH, HEIGHT, 1, 3, 0);
 	CImgDisplay main_disp(WIDTH, HEIGHT, "Reconstructed background");
 
 	// Buckets store the number of times in the image sequence that the pixel has a value that falls in the given range, or "bucket"
@@ -114,7 +114,9 @@ int main(void)
 		}
 	}
 
-	int *acc = new int[WIDTH * HEIGHT]();
+	int *accRed = new int[WIDTH * HEIGHT]();
+	int *accGreen = new int[WIDTH * HEIGHT]();
+	int *accBlue = new int[WIDTH * HEIGHT]();
 	int *count = new int[WIDTH * HEIGHT]();
 
 	// Average out all the pixel values from the biggest bucket
@@ -129,25 +131,29 @@ int main(void)
 		{
 			for (int j = 0; j < HEIGHT; j++)
 			{
-				int pixel = newImage(i, j, 0, 0);
+				int pixelRed = newImage(i, j, 0, 0);
 
 				if (finalBucket[i + j * WIDTH].isABucket)
 				{
-					int pixABucket = getABucket(pixel);
+					int pixABucket = getABucket(pixelRed);
 
 					if (pixABucket == finalBucket[i + j * WIDTH].id)
 					{
-						acc[i + j * WIDTH] += pixel;
+						accRed[i + j * WIDTH] += pixelRed;
+						accGreen[i + j * WIDTH] += newImage(i, j, 0, 1);
+						accBlue[i + j * WIDTH] += newImage(i, j, 0, 2);
 						count[i + j * WIDTH]++;
 					}
 				}
 				else
 				{
-					int pixBBucket = getBBucket(pixel);
+					int pixBBucket = getBBucket(pixelRed);
 
 					if (pixBBucket == finalBucket[i + j * WIDTH].id)
 					{
-						acc[i + j * WIDTH] += pixel;
+						accRed[i + j * WIDTH] += pixelRed;
+						accGreen[i + j * WIDTH] += newImage(i, j, 0, 1);
+						accBlue[i + j * WIDTH] += newImage(i, j, 0, 2);
 						count[i + j * WIDTH]++;
 					}
 				}
@@ -160,7 +166,9 @@ int main(void)
 	{
 		for (int j = 0; j < HEIGHT; j++)
 		{
-			visu(i, j) = acc[i + j * WIDTH] / count[i + j * WIDTH];
+			visu(i, j, 0, 0) = accRed[i + j * WIDTH] / count[i + j * WIDTH];
+			visu(i, j, 0, 1) = accGreen[i + j * WIDTH] / count[i + j * WIDTH];
+			visu(i, j, 0, 2) = accBlue[i + j * WIDTH] / count[i + j * WIDTH];
 		}
 		main_disp.render(visu);
 		main_disp.paint();
