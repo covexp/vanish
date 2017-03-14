@@ -192,7 +192,14 @@ void processSequence(string inputDirectory)
 		main_disp.wait();
 	}
 
-	delete valueBucketA;
+	// Free up memory from arrays
+	delete[] valueBucketA;
+	delete[] valueBucketB;
+	delete[] finalBucket;
+	delete[] accRed;
+	delete[] accGreen;
+	delete[] accBlue;
+	delete[] count;
 }
 
 int main(int argc, char *argv[])
@@ -205,9 +212,10 @@ int main(int argc, char *argv[])
 	desc.add_options()
 		("help", "show help message")
 		("dir", opt::value<string>(), "directory of input image sequence")
+		("frames", opt::value<int>(), "number of frames")
+		("bucket", opt::value<int>(), "bucket size")
 		("w", opt::value<int>(), "image width")
 		("h", opt::value<int>(), "image height")
-		("frames", opt::value<int>(), "number of frames")
 		;
 
 	opt::variables_map vm;
@@ -233,6 +241,7 @@ int main(int argc, char *argv[])
 		inputDirectory = DEFAULT_DIRECTORY;
 	}
 
+	// Process the specified image sequence
 	processSequence(inputDirectory);
 
 	return 0;
