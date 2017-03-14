@@ -3,7 +3,10 @@
 
 #include <iostream>
 #include <string>
+#include <boost/program_options.hpp>
 #include "../../cimg/CImg.h"
+
+namespace opt = boost::program_options;
 
 using namespace cimg_library;
 using namespace std;
@@ -12,13 +15,13 @@ const int MINVAL = 0;
 const int MAXVAL = 255;
 const int WIDTH = 480;
 const int HEIGHT = 480;
-const int FRAMES = 40;
+const int FRAMES = 67;
 const int BUCKETSIZE = 8;
 const int BUCKETS = (MAXVAL + 1) / BUCKETSIZE;
 
-const string DIRECTORY = "logi";
-const string FILESTEM = "salsa (";
-const string FILETYPE = ").jpg";
+const string DEFAULT_DIRECTORY = "input";
+const string FILESTEM = "picpick";
+const string FILETYPE = ".png";
 
 struct bucketEntry
 {
@@ -42,10 +45,8 @@ int getBBucket(int value)
 	return getABucket(value + (BUCKETSIZE / 2));
 }
 
-int main(void)
+void processSequence(string inputDirectory)
 {
-	cout << "Vanish - Version 0.01" << endl;
-
 	CImg<unsigned char> visu(WIDTH, HEIGHT, 1, 3, 0);
 	CImgDisplay main_disp(WIDTH, HEIGHT, "Reconstructed background");
 
@@ -62,7 +63,12 @@ int main(void)
 	// Read image frames and count the buckets
 	for (int frame = 0; frame < FRAMES; frame++)
 	{
-		string filename = DIRECTORY + "/" + FILESTEM + to_string(1 + frame) + FILETYPE;
+		char pad[256];
+		sprintf_s(pad, "%03d", 1 + frame);
+		string padString(pad);
+
+		string filename = inputDirectory + "/" + FILESTEM + padString + FILETYPE;
+
 		CImg<unsigned char> newImage(filename.c_str());
 
 		cout << "|";
@@ -122,7 +128,11 @@ int main(void)
 	// Average out all the pixel values from the biggest bucket
 	for (int frame = 0; frame < FRAMES; frame++)
 	{
-		string filename = DIRECTORY + "/" + FILESTEM + to_string(1 + frame) + FILETYPE;
+		char pad[256];
+		sprintf_s(pad, "%03d", 1 + frame);
+		string padString(pad);
+
+		string filename = inputDirectory + "/" + FILESTEM + padString + FILETYPE;
 		CImg<unsigned char> newImage(filename.c_str());
 
 		cout << "|";
@@ -182,8 +192,48 @@ int main(void)
 		main_disp.wait();
 	}
 
-
 	delete valueBucketA;
+}
+
+int main(int argc, char *argv[])
+{
+	// Welcome message
+	cout << "Vanish - Version 0.02" << endl;
+
+	// Command line options with boost::program_options
+	opt::options_description desc("Allowed options");
+	desc.add_options()
+		("help", "show help message")
+		("dir", opt::value<string>(), "directory of input image sequence")
+		("w", opt::value<int>(), "image width")
+		("h", opt::value<int>(), "image height")
+		("frames", opt::value<int>(), "number of frames")
+		;
+
+	opt::variables_map vm;
+	opt::store(opt::parse_command_line(argc, argv, desc), vm);
+	opt::notify(vm);
+
+	if (vm.count("help"))
+	{
+		cout << desc << endl;
+		return 1;
+	}
+
+	string inputDirectory;
+
+	if (vm.count("dir"))
+	{
+		cout << "Input directory was: " << vm["dir"].as<string>() << endl;
+		inputDirectory = vm["dir"].as<string>();
+	}
+	else
+	{
+		cout << "Directory was not set." << endl;
+		inputDirectory = DEFAULT_DIRECTORY;
+	}
+
+	processSequence(inputDirectory);
 
 	return 0;
 }
