@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 #include <boost/program_options.hpp>
 #include "../../cimg/CImg.h"
 
@@ -56,9 +57,9 @@ void processSequence(string inputDirectory)
 	//
 	// The motivation for having two sets of buckets are cases when the pixel values cluster around a bucket boundary and would be split in two.
 	// Having an additional set of buckets which are centered around these boundaries helps catch these values and keeps them together.
-	int *valueBucketA = new int[WIDTH * HEIGHT * BUCKETS]();
-	int *valueBucketB = new int[WIDTH * HEIGHT * BUCKETS]();
-	bucketEntry *finalBucket = new bucketEntry[WIDTH * HEIGHT];
+	vector<int> valueBucketA(WIDTH * HEIGHT * BUCKETS);
+	vector<int> valueBucketB(WIDTH * HEIGHT * BUCKETS);
+	vector<bucketEntry> finalBucket(WIDTH * HEIGHT);
 
 	// Read image frames and count the buckets
 	for (int frame = 0; frame < FRAMES; frame++)
@@ -120,10 +121,10 @@ void processSequence(string inputDirectory)
 		}
 	}
 
-	int *accRed = new int[WIDTH * HEIGHT]();
-	int *accGreen = new int[WIDTH * HEIGHT]();
-	int *accBlue = new int[WIDTH * HEIGHT]();
-	int *count = new int[WIDTH * HEIGHT]();
+	vector<int> accRed(WIDTH * HEIGHT);
+	vector<int> accGreen(WIDTH * HEIGHT);
+	vector<int> accBlue(WIDTH * HEIGHT);
+	vector<int> count(WIDTH * HEIGHT);
 
 	// Average out all the pixel values from the biggest bucket
 	for (int frame = 0; frame < FRAMES; frame++)
@@ -191,15 +192,6 @@ void processSequence(string inputDirectory)
 	{
 		main_disp.wait();
 	}
-
-	// Free up memory from arrays
-	delete[] valueBucketA;
-	delete[] valueBucketB;
-	delete[] finalBucket;
-	delete[] accRed;
-	delete[] accGreen;
-	delete[] accBlue;
-	delete[] count;
 }
 
 int main(int argc, char *argv[])
@@ -207,7 +199,7 @@ int main(int argc, char *argv[])
 	// Welcome message
 	cout << "Vanish - Version 0.02" << endl;
 
-	// Command line options with boost::program_options
+	// Command line options
 	opt::options_description desc("Allowed options");
 	desc.add_options()
 		("help", "show help message")
