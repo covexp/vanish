@@ -38,6 +38,7 @@ private:
 public:
 	ImageProcessor();
 	~ImageProcessor();
+	void addFile(string fileName);
 	void setFrames(int newFrames);
 	void setInputDirectory(string newDir);
 	void setBucketSize(int newSize);

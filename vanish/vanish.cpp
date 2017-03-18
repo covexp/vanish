@@ -76,6 +76,17 @@ int main(int argc, char *argv[])
 	processor->setInputDirectory(inputDirectory);
 	processor->setFrames(numFrames);
 
+	// Create list of input files
+	for (int i = 0; i < numFrames; i++)
+	{
+		char pad[256];
+		sprintf_s(pad, "%03d", 1 + i);
+		string padString(pad);
+
+		string filename = inputDirectory + "/" + FILESTEM + padString + FILETYPE;
+		processor->addFile(filename);
+	}
+
 	// Process the specified image sequence
 	processor->processSequence();
 

@@ -21,6 +21,12 @@ ImageProcessor::~ImageProcessor()
 {
 }
 
+void ImageProcessor::addFile(string fileName)
+{
+	if(!fileName.empty())
+		fileNames.push_back(fileName);
+}
+
 void ImageProcessor::setFrames(int newFrames)
 {
 	frames = newFrames;
@@ -71,13 +77,7 @@ void ImageProcessor::processSequence()
 	// Read image frames and count the buckets
 	for (int frame = 0; frame < frames; frame++)
 	{
-		char pad[256];
-		sprintf_s(pad, "%03d", 1 + frame);
-		string padString(pad);
-
-		string filename = inputDirectory + "/" + fileStem + padString + fileType;
-
-		CImg<unsigned char> newImage(filename.c_str());
+		CImg<unsigned char> newImage(fileNames[frame].c_str());
 
 		std::cout << "|";
 
@@ -136,12 +136,7 @@ void ImageProcessor::processSequence()
 	// Average out all the pixel values from the biggest bucket
 	for (int frame = 0; frame < frames; frame++)
 	{
-		char pad[256];
-		sprintf_s(pad, "%03d", 1 + frame);
-		string padString(pad);
-
-		string filename = inputDirectory + "/" + fileStem + padString + fileType;
-		CImg<unsigned char> newImage(filename.c_str());
+		CImg<unsigned char> newImage(fileNames[frame].c_str());
 
 		cout << "|";
 
