@@ -74,6 +74,8 @@ void ImageProcessor::processSequence()
 	vector<int> valueBucketB(width * height * buckets);
 	vector<BucketEntry> finalBucket(width * height);
 
+	cout << endl << "Reading:\t";
+
 	// Read image frames and count the buckets
 	for (int frame = 0; frame < fileNames.size(); frame++)
 	{
@@ -132,6 +134,8 @@ void ImageProcessor::processSequence()
 	vector<int> accGreen(width * height);
 	vector<int> accBlue(width * height);
 	vector<int> count(width * height);
+
+	cout << endl << "Averaging:\t";
 
 	// Average out all the pixel values from the biggest bucket
 	for (int frame = 0; frame < fileNames.size(); frame++)
