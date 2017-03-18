@@ -75,7 +75,7 @@ void ImageProcessor::processSequence()
 	vector<BucketEntry> finalBucket(width * height);
 
 	// Read image frames and count the buckets
-	for (int frame = 0; frame < frames; frame++)
+	for (int frame = 0; frame < fileNames.size(); frame++)
 	{
 		CImg<unsigned char> newImage(fileNames[frame].c_str());
 
@@ -134,7 +134,7 @@ void ImageProcessor::processSequence()
 	vector<int> count(width * height);
 
 	// Average out all the pixel values from the biggest bucket
-	for (int frame = 0; frame < frames; frame++)
+	for (int frame = 0; frame < fileNames.size(); frame++)
 	{
 		CImg<unsigned char> newImage(fileNames[frame].c_str());
 
