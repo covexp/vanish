@@ -20,9 +20,9 @@ struct BucketEntry
 class ImageProcessor
 {
 private:
-	std::string inputDirectory;
-	std::string fileStem;
-	std::string fileType;
+	string inputDirectory;
+	string fileStem;
+	string fileType;
 
 	int frames;
 	int width;
@@ -33,19 +33,7 @@ private:
 	int bucketSize;
 	int buckets;
 
-
-	//const int MINVAL = 0;
-	//const int MAXVAL = 255;
-	//const int WIDTH = 480;
-	//const int HEIGHT = 480;
-	//const int FRAMES = 67;
-	//const int BUCKETSIZE = 8;
-	//const int BUCKETS = (MAXVAL + 1) / BUCKETSIZE;
-
-	//const string DEFAULT_DIRECTORY = "input";
-	//const string FILESTEM = "picpick";
-	//const string FILETYPE = ".png";
-
+	vector<string> fileNames;
 
 public:
 	ImageProcessor();
