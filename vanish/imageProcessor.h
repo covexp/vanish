@@ -4,9 +4,11 @@
 #pragma once
 
 #include <iostream>
+#include <algorithm>
 #include <string>
 #include <vector>
 #include <array>
+
 #include "../../cimg/CImg.h"
 
 using namespace std;
@@ -21,10 +23,6 @@ struct BucketEntry
 class ImageProcessor
 {
 private:
-	string inputDirectory;
-	string fileStem;
-	string fileType;
-
 	int frames;
 	int width;
 	int height;
@@ -36,15 +34,18 @@ private:
 
 	vector<string> fileNames;
 
+	int getABucket(int value);
+	int getBBucket(int value);
+
 public:
 	ImageProcessor();
 	~ImageProcessor();
+
+	void setFiles(vector<string> fn);
 	void addFile(string fileName);
 	void setFrames(int newFrames);
-	void setInputDirectory(string newDir);
 	void setBucketSize(int newSize);
-	int getABucket(int value);
-	int getBBucket(int value);
+
 	void processSequence();
 };
 

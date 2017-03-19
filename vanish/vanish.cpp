@@ -5,11 +5,14 @@
 #include <string>
 #include <vector>
 #include <boost/program_options.hpp>
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/path.hpp>
 #include "../../cimg/CImg.h"
 
 #include "imageProcessor.h"
 
 namespace opt = boost::program_options;
+namespace fs = boost::filesystem;
 
 using namespace std;
 using namespace cimg_library;
@@ -38,7 +41,8 @@ int main(int argc, char *argv[])
 	opt::options_description desc("Allowed options");
 	desc.add_options()
 		("help", "show help message")
-		("dir", opt::value<string>(), "directory of input image sequence")
+		("dir", opt::value<string>()->default_value("./input/"), "directory of input image sequence")
+		("type", opt::value<string>()->default_value("png"), "file extension")
 		("frames", opt::value<int>()->default_value(50), "number of frames")
 		("bucket", opt::value<int>()->default_value(8), "bucket size")
 		("depth", opt::value<int>()->default_value(8), "channel bit depth")
@@ -56,36 +60,42 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	string inputDirectory;
-
-	if (vm.count("dir"))
-	{
-		cout << "Input directory was: " << vm["dir"].as<string>() << endl;
-		inputDirectory = vm["dir"].as<string>();
-	}
-	else
-	{
-		cout << "Directory was not set." << endl;
-		inputDirectory = DEFAULT_DIRECTORY;
-	}
-
+	string inputDirectory = vm["dir"].as<string>();
+	string fileExtension = vm["type"].as<string>();
 	int numFrames = vm["frames"].as<int>();
+
+	// Find image files
+	fs::path imagePath(fs::initial_path());
+	imagePath = fs::system_complete(fs::path(inputDirectory, fs::native));
+
+	if (!fs::exists(imagePath))
+	{
+		cout << "Directory " << inputDirectory << " not found! Terminating." << endl;
+		return 1;
+	}
+
+	vector<string> fileNames;
+
+	fs::directory_iterator endItr;
+	if (fs::is_directory(imagePath))
+	{
+		for (fs::directory_iterator itr(imagePath); itr != endItr; ++itr)
+		{
+			if (fs::is_regular_file(*itr))
+			{
+				if (itr->path().extension() == string(".") + "png")
+				{
+//					cout << *itr << endl;
+					fileNames.push_back(itr->path().string());
+				}
+			}
+		}
+	}
 
 	// Set up the parameters for the image processor
 	ImageProcessor *processor = new ImageProcessor();
-	processor->setInputDirectory(inputDirectory);
 	processor->setFrames(numFrames);
-
-	// Create list of input files
-	for (int i = 0; i < numFrames; i++)
-	{
-		char pad[256];
-		sprintf_s(pad, "%03d", 1 + i);
-		string padString(pad);
-
-		string filename = inputDirectory + "/" + FILESTEM + padString + FILETYPE;
-		processor->addFile(filename);
-	}
+	processor->setFiles(fileNames);
 
 	// Process the specified image sequence
 	processor->processSequence();

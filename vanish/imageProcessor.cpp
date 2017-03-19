@@ -12,13 +12,17 @@ ImageProcessor::ImageProcessor()
 	maxVal = 255;
 	bucketSize = 8;
 	buckets = (maxVal + 1) / bucketSize;
-
-	fileStem = "picpick";
-	fileType = ".png";
 }
 
 ImageProcessor::~ImageProcessor()
 {
+}
+
+void ImageProcessor::setFiles(vector<string> fn)
+{
+	fileNames = fn;
+
+	frames = min((int) fileNames.size(), frames);
 }
 
 void ImageProcessor::addFile(string fileName)
@@ -30,11 +34,6 @@ void ImageProcessor::addFile(string fileName)
 void ImageProcessor::setFrames(int newFrames)
 {
 	frames = newFrames;
-}
-
-void ImageProcessor::setInputDirectory(string newDir)
-{
-	inputDirectory = newDir;
 }
 
 void ImageProcessor::setBucketSize(int newSize)
