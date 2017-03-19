@@ -77,9 +77,9 @@ void ImageProcessor::processSequence()
 	cout << endl << "Reading:\t";
 
 	// Read image frames and count the buckets
-	for (int frame = 0; frame < fileNames.size(); frame++)
+	for(auto &file : fileNames)
 	{
-		CImg<unsigned char> newImage(fileNames[frame].c_str());
+		CImg<unsigned char> newImage(file.c_str());
 
 		std::cout << "|";
 
@@ -138,9 +138,9 @@ void ImageProcessor::processSequence()
 	cout << endl << "Averaging:\t";
 
 	// Average out all the pixel values from the biggest bucket
-	for (int frame = 0; frame < fileNames.size(); frame++)
+	for (auto &file : fileNames)
 	{
-		CImg<unsigned char> newImage(fileNames[frame].c_str());
+		CImg<unsigned char> newImage(file.c_str());
 
 		cout << "|";
 

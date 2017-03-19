@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <array>
 #include "../../cimg/CImg.h"
 
 using namespace std;
