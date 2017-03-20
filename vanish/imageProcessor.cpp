@@ -138,10 +138,12 @@ void ImageProcessor::findBiggestBucket()
 
 void ImageProcessor::createAveragedImage()
 {
-	vector<int> accRed(width * height);
-	vector<int> accGreen(width * height);
-	vector<int> accBlue(width * height);
+	vector<float> accRed(width * height);
+	vector<float> accGreen(width * height);
+	vector<float> accBlue(width * height);
 	vector<int> count(width * height);
+
+	vector<float> confidence(width * height);
 
 	cout << endl << "Averaging:\t";
 
@@ -194,9 +196,9 @@ void ImageProcessor::createAveragedImage()
 	{
 		for (int j = 0; j < height; j++)
 		{
-			visu(i, j, 0, 0) = accRed[i + j * width] / count[i + j * width];
-			visu(i, j, 0, 1) = accGreen[i + j * width] / count[i + j * width];
-			visu(i, j, 0, 2) = accBlue[i + j * width] / count[i + j * width];
+			visu(i, j, 0, 0) = (unsigned char) (accRed[i + j * width] / count[i + j * width]);
+			visu(i, j, 0, 1) = (unsigned char) (accGreen[i + j * width] / count[i + j * width]);
+			visu(i, j, 0, 2) = (unsigned char) (accBlue[i + j * width] / count[i + j * width]);
 		}
 		main_disp.render(visu);
 		main_disp.paint();

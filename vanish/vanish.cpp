@@ -24,7 +24,7 @@ const int DEFAULT_BITDEPTH = 8;
 int main(int argc, char *argv[])
 {
 	// Welcome message
-	cout << "Vanish - Version 0.02" << endl << endl;
+	cout << "Vanish - Version 0.03" << endl << endl;
 
 	// Command line options
 	opt::options_description desc("Allowed options");
@@ -79,7 +79,6 @@ int main(int argc, char *argv[])
 			{
 				if (itr->path().extension() == string(".") + fileExtension)
 				{
-//					cout << *itr << endl;
 					fileNames.push_back(itr->path().string());
 				}
 			}
