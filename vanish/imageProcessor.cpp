@@ -111,7 +111,6 @@ void ImageProcessor::findBiggestBucket()
 		for (int j = 0; j < height; j++)
 		{
 			int maxCount = 0;
-			int nearMaxCount = 0;
 			int maxBucket = -1;
 			bool maxTypeA = true;
 
@@ -119,14 +118,12 @@ void ImageProcessor::findBiggestBucket()
 			{
 				if (bucketData->valueBucketA[i + j * width + bucket * (width * height)] > maxCount)
 				{
-					nearMaxCount = maxCount;
 					maxCount = bucketData->valueBucketA[i + j * width + bucket * (width * height)];
 					maxBucket = bucket;
 					maxTypeA = true;
 				}
 				if (bucketData->valueBucketB[i + j * width + bucket * (width * height)] > maxCount)
 				{
-					nearMaxCount = maxCount;
 					maxCount = bucketData->valueBucketB[i + j * width + bucket * (width * height)];
 					maxBucket = bucket;
 					maxTypeA = false;
@@ -205,7 +202,7 @@ void ImageProcessor::createOutput()
 			reconstructionImage(i, j, 0, 1) = (unsigned char) (accGreen[i + j * width] / count[i + j * width]);
 			reconstructionImage(i, j, 0, 2) = (unsigned char) (accBlue[i + j * width] / count[i + j * width]);
 
-			confidenceImage(i, j, 0, 0) = (unsigned char)bucketData->finalBucket[i + j * width].diff * 4;
+			confidenceImage(i, j, 0, 0) = (unsigned char) (bucketData->finalBucket[i + j * width].diff * maxVal / frames);
 		}
 		main_disp.render(reconstructionImage);
 		main_disp.paint();
