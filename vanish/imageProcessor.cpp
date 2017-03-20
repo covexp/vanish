@@ -49,7 +49,7 @@ void ImageProcessor::initializeData()
 
 void ImageProcessor::setBucketSize(int newSize)
 {
-	bucketSize = 8;
+	bucketSize = newSize;
 	buckets = (maxVal + 1) / bucketSize;
 }
 
@@ -73,16 +73,6 @@ void ImageProcessor::processSequence()
 {
 	CImg<unsigned char> visu(width, height, 1, 3, 0);
 	CImgDisplay main_disp(width, height, "Reconstructed background");
-
-	// Buckets store the number of times in the image sequence that the pixel has a value that falls in the given range, or "bucket"
-	// A-buckets span the whole range from 0 to 255
-	// B-buckets are offset from A-buckets by half of the bucket size and cover a subset of the whole color range
-	//
-	// The motivation for having two sets of buckets are cases when the pixel values cluster around a bucket boundary and would be split in two.
-	// Having an additional set of buckets which are centered around the original edges helps catch these values and keep them together.
-//	vector<int> valueBucketA(width * height * buckets);
-//	vector<int> valueBucketB(width * height * buckets);
-//	vector<BucketEntry> finalBucket(width * height);
 
 	cout << endl << "Reading:\t";
 
