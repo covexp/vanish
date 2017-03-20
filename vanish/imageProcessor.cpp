@@ -22,7 +22,23 @@ void ImageProcessor::setFiles(vector<string> fn)
 {
 	fileNames = fn;
 
+	inferParameters();
+}
+
+void ImageProcessor::inferParameters()
+{
+	if (fileNames.size() <= 0)
+	{
+		cerr << "Image list empty. Exiting." << endl;
+		exit(EXIT_FAILURE);
+	}
+
 	frames = fileNames.size();
+
+	CImg<unsigned char> inspectImage(fileNames[0].c_str());
+	width = inspectImage.width();
+	height = inspectImage.height();
+	channels = inspectImage.depth();
 }
 
 void ImageProcessor::setBucketSize(int newSize)

@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
 	if (!fs::exists(imagePath))
 	{
 		cout << "Directory " << inputDirectory << " not found! Terminating." << endl;
-		return 1;
+		exit(EXIT_FAILURE);
 	}
 
 	vector<string> fileNames;

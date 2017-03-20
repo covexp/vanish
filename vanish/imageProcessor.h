@@ -26,6 +26,8 @@ private:
 	int frames;
 	int width;
 	int height;
+	int channels;
+	int depth;
 
 	int minVal;
 	int maxVal;
@@ -36,6 +38,8 @@ private:
 
 	int getABucket(int value);
 	int getBBucket(int value);
+
+	void inferParameters();
 
 public:
 	ImageProcessor();
