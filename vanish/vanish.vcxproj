@@ -121,13 +121,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="bucketData.cpp" />
     <ClCompile Include="imageProcessor.cpp" />
-    <ClCompile Include="pixelBucket.cpp" />
     <ClCompile Include="vanish.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="bucketData.h" />
     <ClInclude Include="imageProcessor.h" />
-    <ClInclude Include="pixelBucket.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

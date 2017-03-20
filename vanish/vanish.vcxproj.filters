@@ -18,18 +18,18 @@
     <ClCompile Include="vanish.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="pixelBucket.cpp">
+    <ClCompile Include="imageProcessor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="imageProcessor.cpp">
+    <ClCompile Include="bucketData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="pixelBucket.h">
+    <ClInclude Include="imageProcessor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="imageProcessor.h">
+    <ClInclude Include="bucketData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -11,14 +11,10 @@
 
 #include "../../cimg/CImg.h"
 
+#include "bucketData.h"
+
 using namespace std;
 using namespace cimg_library;
-
-struct BucketEntry
-{
-	int id;
-	bool isABucket;
-};
 
 class ImageProcessor
 {
@@ -34,12 +30,16 @@ private:
 	int bucketSize;
 	int buckets;
 
+	BucketData *bucketData;
+
 	vector<string> fileNames;
 
 	int getABucket(int value);
 	int getBBucket(int value);
 
 	void inferParameters();
+
+	void initializeData();
 
 public:
 	ImageProcessor();

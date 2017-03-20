@@ -23,6 +23,7 @@ void ImageProcessor::setFiles(vector<string> fn)
 	fileNames = fn;
 
 	inferParameters();
+	initializeData();
 }
 
 void ImageProcessor::inferParameters()
@@ -39,6 +40,11 @@ void ImageProcessor::inferParameters()
 	width = inspectImage.width();
 	height = inspectImage.height();
 	channels = inspectImage.depth();
+}
+
+void ImageProcessor::initializeData()
+{
+	bucketData = new BucketData(width, height, buckets);
 }
 
 void ImageProcessor::setBucketSize(int newSize)
@@ -74,9 +80,9 @@ void ImageProcessor::processSequence()
 	//
 	// The motivation for having two sets of buckets are cases when the pixel values cluster around a bucket boundary and would be split in two.
 	// Having an additional set of buckets which are centered around the original edges helps catch these values and keep them together.
-	vector<int> valueBucketA(width * height * buckets);
-	vector<int> valueBucketB(width * height * buckets);
-	vector<BucketEntry> finalBucket(width * height);
+//	vector<int> valueBucketA(width * height * buckets);
+//	vector<int> valueBucketB(width * height * buckets);
+//	vector<BucketEntry> finalBucket(width * height);
 
 	cout << endl << "Reading:\t";
 
@@ -94,10 +100,10 @@ void ImageProcessor::processSequence()
 				int pixel = newImage(i, j, 0, 0);
 
 				int a_bucket = getABucket(pixel);
-				valueBucketA[i + j * width + a_bucket * (width * height)]++;
+				bucketData->valueBucketA[i + j * width + a_bucket * (width * height)]++;
 
 				int b_bucket = getBBucket(pixel);
-				valueBucketB[i + j * width + b_bucket * (width * height)]++;
+				bucketData->valueBucketB[i + j * width + b_bucket * (width * height)]++;
 
 				visu(i, j) = 127;
 			}
@@ -115,22 +121,22 @@ void ImageProcessor::processSequence()
 
 			for (int bucket = 0; bucket < buckets; bucket++)
 			{
-				if (valueBucketA[i + j * width + bucket * (width * height)] > maxCount)
+				if (bucketData->valueBucketA[i + j * width + bucket * (width * height)] > maxCount)
 				{
-					maxCount = valueBucketA[i + j * width + bucket * (width * height)];
+					maxCount = bucketData->valueBucketA[i + j * width + bucket * (width * height)];
 					maxBucket = bucket;
 					maxTypeA = true;
 				}
-				if (valueBucketB[i + j * width + bucket * (width * height)] > maxCount)
+				if (bucketData->valueBucketB[i + j * width + bucket * (width * height)] > maxCount)
 				{
-					maxCount = valueBucketB[i + j * width + bucket * (width * height)];
+					maxCount = bucketData->valueBucketB[i + j * width + bucket * (width * height)];
 					maxBucket = bucket;
 					maxTypeA = false;
 				}
 			}
 
-			finalBucket[i + j * width].id = maxBucket;
-			finalBucket[i + j * width].isABucket = maxTypeA;
+			bucketData->finalBucket[i + j * width].id = maxBucket;
+			bucketData->finalBucket[i + j * width].isABucket = maxTypeA;
 		}
 	}
 
@@ -154,11 +160,11 @@ void ImageProcessor::processSequence()
 			{
 				int pixelRed = newImage(i, j, 0, 0);
 
-				if (finalBucket[i + j * width].isABucket)
+				if (bucketData->finalBucket[i + j * width].isABucket)
 				{
 					int pixABucket = getABucket(pixelRed);
 
-					if (pixABucket == finalBucket[i + j * width].id)
+					if (pixABucket == bucketData->finalBucket[i + j * width].id)
 					{
 						accRed[i + j * width] += pixelRed;
 						accGreen[i + j * width] += newImage(i, j, 0, 1);
@@ -170,7 +176,7 @@ void ImageProcessor::processSequence()
 				{
 					int pixBBucket = getBBucket(pixelRed);
 
-					if (pixBBucket == finalBucket[i + j * width].id)
+					if (pixBBucket == bucketData->finalBucket[i + j * width].id)
 					{
 						accRed[i + j * width] += pixelRed;
 						accGreen[i + j * width] += newImage(i, j, 0, 1);
