@@ -57,6 +57,7 @@ int main(int argc, char *argv[])
 
 	string inputDirectory = vm["dir"].as<string>();
 	string fileExtension = vm["type"].as<string>();
+	int bucketSize = vm["bucket"].as<int>();
 
 	// Find image files
 	fs::path imagePath(fs::initial_path());
@@ -87,6 +88,7 @@ int main(int argc, char *argv[])
 
 	// Set up the parameters for the image processor
 	ImageProcessor *processor = new ImageProcessor();
+	processor->setBucketSize(bucketSize);
 	processor->setFiles(fileNames);
 
 	// Process the specified image sequence

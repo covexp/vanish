@@ -40,6 +40,12 @@ void ImageProcessor::inferParameters()
 	width = inspectImage.width();
 	height = inspectImage.height();
 	channels = inspectImage.depth();
+
+	cout << "Image data" << endl;
+	cout << "\tFrames:\t\t" << frames << endl;
+	cout << "\tWidth:\t\t" << width << endl;
+	cout << "\tHeight:\t\t" << height << endl;
+	cout << "\tChannels:\t" << channels << endl;
 }
 
 void ImageProcessor::initializeData()
