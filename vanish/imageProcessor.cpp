@@ -22,18 +22,7 @@ void ImageProcessor::setFiles(vector<string> fn)
 {
 	fileNames = fn;
 
-	frames = min((int) fileNames.size(), frames);
-}
-
-void ImageProcessor::addFile(string fileName)
-{
-	if(!fileName.empty())
-		fileNames.push_back(fileName);
-}
-
-void ImageProcessor::setFrames(int newFrames)
-{
-	frames = newFrames;
+	frames = fileNames.size();
 }
 
 void ImageProcessor::setBucketSize(int newSize)
@@ -68,7 +57,7 @@ void ImageProcessor::processSequence()
 	// B-buckets are offset from A-buckets by half of the bucket size and cover a subset of the whole color range
 	//
 	// The motivation for having two sets of buckets are cases when the pixel values cluster around a bucket boundary and would be split in two.
-	// Having an additional set of buckets which are centered around these boundaries helps catch these values and keeps them together.
+	// Having an additional set of buckets which are centered around the original edges helps catch these values and keep them together.
 	vector<int> valueBucketA(width * height * buckets);
 	vector<int> valueBucketB(width * height * buckets);
 	vector<BucketEntry> finalBucket(width * height);

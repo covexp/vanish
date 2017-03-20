@@ -42,8 +42,6 @@ public:
 	~ImageProcessor();
 
 	void setFiles(vector<string> fn);
-	void addFile(string fileName);
-	void setFrames(int newFrames);
 	void setBucketSize(int newSize);
 
 	void processSequence();
