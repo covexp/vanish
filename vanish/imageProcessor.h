@@ -51,6 +51,6 @@ public:
 	void processSequence();
 	void countBuckets();
 	void findBiggestBucket();
-	void createAveragedImage();
+	void createOutput();
 };
 

@@ -7,6 +7,7 @@ struct BucketEntry
 {
 	int id;
 	bool isABucket;
+	int diff;
 };
 
 class BucketData

@@ -73,7 +73,7 @@ void ImageProcessor::processSequence()
 {
 	countBuckets();
 	findBiggestBucket();
-	createAveragedImage();
+	createOutput();
 }
 
 void ImageProcessor::countBuckets()
@@ -111,6 +111,7 @@ void ImageProcessor::findBiggestBucket()
 		for (int j = 0; j < height; j++)
 		{
 			int maxCount = 0;
+			int nearMaxCount = 0;
 			int maxBucket = -1;
 			bool maxTypeA = true;
 
@@ -118,12 +119,14 @@ void ImageProcessor::findBiggestBucket()
 			{
 				if (bucketData->valueBucketA[i + j * width + bucket * (width * height)] > maxCount)
 				{
+					nearMaxCount = maxCount;
 					maxCount = bucketData->valueBucketA[i + j * width + bucket * (width * height)];
 					maxBucket = bucket;
 					maxTypeA = true;
 				}
 				if (bucketData->valueBucketB[i + j * width + bucket * (width * height)] > maxCount)
 				{
+					nearMaxCount = maxCount;
 					maxCount = bucketData->valueBucketB[i + j * width + bucket * (width * height)];
 					maxBucket = bucket;
 					maxTypeA = false;
@@ -132,18 +135,17 @@ void ImageProcessor::findBiggestBucket()
 
 			bucketData->finalBucket[i + j * width].id = maxBucket;
 			bucketData->finalBucket[i + j * width].isABucket = maxTypeA;
+			bucketData->finalBucket[i + j * width].diff = maxCount;
 		}
 	}
 }
 
-void ImageProcessor::createAveragedImage()
+void ImageProcessor::createOutput()
 {
 	vector<float> accRed(width * height);
 	vector<float> accGreen(width * height);
 	vector<float> accBlue(width * height);
 	vector<int> count(width * height);
-
-	vector<float> confidence(width * height);
 
 	cout << endl << "Averaging:\t";
 
@@ -189,20 +191,27 @@ void ImageProcessor::createAveragedImage()
 	}
 
 	// Paint the final result in a window
-	CImg<unsigned char> visu(width, height, 1, 3, 0);
+	CImg<unsigned char> reconstructionImage(width, height, 1, 3, 0);
 	CImgDisplay main_disp(width, height, "Reconstructed background");
+
+	CImg<unsigned char> confidenceImage(width, height, 1, 1, 0);
+	CImgDisplay aux_disp(width, height, "Confidence mask");
 
 	for (int i = 0; i < width; i++)
 	{
 		for (int j = 0; j < height; j++)
 		{
-			visu(i, j, 0, 0) = (unsigned char) (accRed[i + j * width] / count[i + j * width]);
-			visu(i, j, 0, 1) = (unsigned char) (accGreen[i + j * width] / count[i + j * width]);
-			visu(i, j, 0, 2) = (unsigned char) (accBlue[i + j * width] / count[i + j * width]);
+			reconstructionImage(i, j, 0, 0) = (unsigned char) (accRed[i + j * width] / count[i + j * width]);
+			reconstructionImage(i, j, 0, 1) = (unsigned char) (accGreen[i + j * width] / count[i + j * width]);
+			reconstructionImage(i, j, 0, 2) = (unsigned char) (accBlue[i + j * width] / count[i + j * width]);
+
+			confidenceImage(i, j, 0, 0) = (unsigned char)bucketData->finalBucket[i + j * width].diff * 4;
 		}
-		main_disp.render(visu);
+		main_disp.render(reconstructionImage);
 		main_disp.paint();
 
+		aux_disp.render(confidenceImage);
+		aux_disp.paint();
 	}
 
 	cout << endl;
