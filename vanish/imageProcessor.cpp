@@ -71,13 +71,17 @@ int ImageProcessor::getBBucket(int value)
 
 void ImageProcessor::processSequence()
 {
-	CImg<unsigned char> visu(width, height, 1, 3, 0);
-	CImgDisplay main_disp(width, height, "Reconstructed background");
+	countBuckets();
+	findBiggestBucket();
+	createAveragedImage();
+}
 
+void ImageProcessor::countBuckets()
+{
 	cout << endl << "Reading:\t";
 
 	// Read image frames and count the buckets
-	for(auto &file : fileNames)
+	for (auto &file : fileNames)
 	{
 		CImg<unsigned char> newImage(file.c_str());
 
@@ -94,12 +98,13 @@ void ImageProcessor::processSequence()
 
 				int b_bucket = getBBucket(pixel);
 				bucketData->valueBucketB[i + j * width + b_bucket * (width * height)]++;
-
-				visu(i, j) = 127;
 			}
 		}
 	}
+}
 
+void ImageProcessor::findBiggestBucket()
+{
 	// Find the biggest bucket
 	for (int i = 0; i < width; i++)
 	{
@@ -129,7 +134,10 @@ void ImageProcessor::processSequence()
 			bucketData->finalBucket[i + j * width].isABucket = maxTypeA;
 		}
 	}
+}
 
+void ImageProcessor::createAveragedImage()
+{
 	vector<int> accRed(width * height);
 	vector<int> accGreen(width * height);
 	vector<int> accBlue(width * height);
@@ -179,6 +187,9 @@ void ImageProcessor::processSequence()
 	}
 
 	// Paint the final result in a window
+	CImg<unsigned char> visu(width, height, 1, 3, 0);
+	CImgDisplay main_disp(width, height, "Reconstructed background");
+
 	for (int i = 0; i < width; i++)
 	{
 		for (int j = 0; j < height; j++)

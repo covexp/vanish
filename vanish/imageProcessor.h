@@ -49,5 +49,8 @@ public:
 	void setBucketSize(int newSize);
 
 	void processSequence();
+	void countBuckets();
+	void findBiggestBucket();
+	void createAveragedImage();
 };
 
