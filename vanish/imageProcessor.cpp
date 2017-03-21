@@ -39,7 +39,7 @@ void ImageProcessor::inferParameters()
 	CImg<unsigned char> inspectImage(fileNames[0].c_str());
 	width = inspectImage.width();
 	height = inspectImage.height();
-	channels = inspectImage.depth();
+	channels = inspectImage.spectrum();
 
 	cout << "Image data" << endl;
 	cout << "\tFrames:\t\t" << frames << endl;
