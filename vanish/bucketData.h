@@ -5,9 +5,9 @@ using namespace std;
 
 struct BucketEntry
 {
-	int id;
+	unsigned char id;
 	bool isABucket;
-	int diff;
+	unsigned char diff;
 };
 
 class BucketData
@@ -18,8 +18,8 @@ public:
 	BucketData(int width, int height, int buckets);
 	~BucketData();
 
-	vector<int> valueBucketA;
-	vector<int> valueBucketB;
+	vector<short int> valueBucketA;
+	vector<short int> valueBucketB;
 	vector<BucketEntry> finalBucket;
 };
 

@@ -34,6 +34,7 @@ int main(int argc, char *argv[])
 		("type", opt::value<string>()->default_value("png"), "file extension")
 		("bucket", opt::value<int>()->default_value(DEFAULT_BUCKETSIZE), "bucket size")
 		("depth", opt::value<int>()->default_value(DEFAULT_BITDEPTH), "channel bit depth")
+		("refine", opt::value<int>()->default_value(0), "number of refinement steps")
 		;
 
 	opt::variables_map vm;
