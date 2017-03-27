@@ -1,4 +1,5 @@
 vanish
+
 Remove transient objects from an image sequence
 
 Input: image sequence with a stable background and moving foreground objects
