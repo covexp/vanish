@@ -20,7 +20,7 @@ ImageProcessor::~ImageProcessor()
 		delete bucketData;
 }
 
-void ImageProcessor::setFiles(vector<string> fn)
+void ImageProcessor::setFiles(std::vector<std::string> fn)
 {
 	fileNames = fn;
 
@@ -32,22 +32,22 @@ void ImageProcessor::inferParameters()
 {
 	if (fileNames.size() <= 0)
 	{
-		cerr << "Image list empty. Exiting." << endl;
+		std::cerr << "Image list empty. Exiting." << std::endl;
 		exit(EXIT_FAILURE);
 	}
 
 	frames = fileNames.size();
 
-	CImg<unsigned char> inspectImage(fileNames[0].c_str());
+	cimg::CImg<unsigned char> inspectImage(fileNames[0].c_str());
 	width = inspectImage.width();
 	height = inspectImage.height();
 	channels = inspectImage.spectrum();
 
-	cout << "Image data" << endl;
-	cout << "\tFrames:\t\t" << frames << endl;
-	cout << "\tWidth:\t\t" << width << endl;
-	cout << "\tHeight:\t\t" << height << endl;
-	cout << "\tChannels:\t" << channels << endl;
+	std::cout << "Image data" << std::endl;
+	std::cout << "\tFrames:\t\t" << frames << std::endl;
+	std::cout << "\tWidth:\t\t" << width << std::endl;
+	std::cout << "\tHeight:\t\t" << height << std::endl;
+	std::cout << "\tChannels:\t" << channels << std::endl;
 }
 
 void ImageProcessor::initializeData()
@@ -87,12 +87,12 @@ void ImageProcessor::processSequence()
 
 void ImageProcessor::countBuckets()
 {
-	cout << endl << "Reading:\t";
+	std::cout << std::endl << "Reading:\t";
 
 	// Read image frames and count the buckets
 	for (auto &file : fileNames)
 	{
-		CImg<unsigned char> newImage(file.c_str());
+		cimg::CImg<unsigned char> newImage(file.c_str());
 
 		std::cout << "|";
 
@@ -191,19 +191,19 @@ void ImageProcessor::refineSolution()
 
 void ImageProcessor::createOutput()
 {
-	vector<float> accRed(width * height);
-	vector<float> accGreen(width * height);
-	vector<float> accBlue(width * height);
-	vector<int> count(width * height);
+	std::vector<float> accRed(width * height);
+	std::vector<float> accGreen(width * height);
+	std::vector<float> accBlue(width * height);
+	std::vector<int> count(width * height);
 
-	cout << endl << "Averaging:\t";
+	std::cout << std::endl << "Averaging:\t";
 
 	// Average out all the pixel values from the biggest bucket
 	for (auto &file : fileNames)
 	{
-		CImg<unsigned char> newImage(file.c_str());
+		cimg::CImg<unsigned char> newImage(file.c_str());
 
-		cout << "|";
+		std::cout << "|";
 
 		for (int i = 0; i < width; i++)
 		{
@@ -240,11 +240,11 @@ void ImageProcessor::createOutput()
 	}
 
 	// Paint the final result in a window
-	CImg<unsigned char> reconstructionImage(width, height, 1, 3, 0);
-	CImgDisplay main_disp(width, height, "Reconstructed background");
+	cimg::CImg<unsigned char> reconstructionImage(width, height, 1, 3, 0);
+	cimg::CImgDisplay main_disp(width, height, "Reconstructed background");
 
-	CImg<unsigned char> confidenceImage(width, height, 1, 3, 0);
-	CImgDisplay aux_disp(width, height, "Confidence mask");
+	cimg::CImg<unsigned char> confidenceImage(width, height, 1, 3, 0);
+	cimg::CImgDisplay aux_disp(width, height, "Confidence mask");
 
 	for (int i = 0; i < width; i++)
 	{
@@ -271,7 +271,7 @@ void ImageProcessor::createOutput()
 		aux_disp.paint();
 	}
 
-	cout << endl;
+	std::cout << std::endl;
 
 	while (!main_disp.is_closed())
 	{

@@ -13,25 +13,23 @@
 
 namespace opt = boost::program_options;
 namespace fs = boost::filesystem;
+namespace cimg = cimg_library;
 
-using namespace std;
-using namespace cimg_library;
-
-const string DEFAULT_DIRECTORY = "./input/";
+const std::string DEFAULT_DIRECTORY = "./input/";
 const int DEFAULT_BUCKETSIZE = 8;
 const int DEFAULT_BITDEPTH = 8;
 
 int main(int argc, char *argv[])
 {
 	// Welcome message
-	cout << "Vanish - Version 0.03 Alpha" << endl << endl;
+	std::cout << "Vanish - Version 0.03 Alpha" << std::endl << std::endl;
 
 	// Command line options
 	opt::options_description desc("Allowed options");
 	desc.add_options()
 		("help", "show help message")
-		("dir", opt::value<string>()->default_value(DEFAULT_DIRECTORY), "directory of input image sequence")
-		("type", opt::value<string>()->default_value("png"), "file extension")
+		("dir", opt::value<std::string>()->default_value(DEFAULT_DIRECTORY), "directory of input image sequence")
+		("type", opt::value<std::string>()->default_value("png"), "file extension")
 		("bucket", opt::value<int>()->default_value(DEFAULT_BUCKETSIZE), "bucket size")
 		("depth", opt::value<int>()->default_value(DEFAULT_BITDEPTH), "channel bit depth")
 		("refine", opt::value<int>()->default_value(0), "number of refinement steps")
@@ -44,20 +42,20 @@ int main(int argc, char *argv[])
 		opt::store(opt::parse_command_line(argc, argv, desc), vm);
 		opt::notify(vm);
 	}
-	catch (const exception &e)
+	catch (const std::exception &e)
 	{
-		cerr << "Invalid command line parameter. Exiting." << endl;
+		std::cerr << "Invalid command line parameter. Exiting." << std::endl;
 		return 1;
 	}
 
 	if (vm.count("help"))
 	{
-		cout << desc << endl;
+		std::cout << desc << std::endl;
 		return 1;
 	}
 
-	string inputDirectory = vm["dir"].as<string>();
-	string fileExtension = vm["type"].as<string>();
+	std::string inputDirectory = vm["dir"].as<std::string>();
+	std::string fileExtension = vm["type"].as<std::string>();
 	int bucketSize = vm["bucket"].as<int>();
 
 	// Find image files
@@ -66,11 +64,11 @@ int main(int argc, char *argv[])
 
 	if (!fs::exists(imagePath))
 	{
-		cout << "Directory " << inputDirectory << " not found! Terminating." << endl;
+		std::cout << "Directory " << inputDirectory << " not found! Terminating." << std::endl;
 		exit(EXIT_FAILURE);
 	}
 
-	vector<string> fileNames;
+	std::vector<std::string> fileNames;
 
 	fs::directory_iterator endItr;
 	if (fs::is_directory(imagePath))
@@ -79,7 +77,7 @@ int main(int argc, char *argv[])
 		{
 			if (fs::is_regular_file(*itr))
 			{
-				if (itr->path().extension() == string(".") + fileExtension)
+				if (itr->path().extension() == std::string(".") + fileExtension)
 				{
 					fileNames.push_back(itr->path().string());
 				}

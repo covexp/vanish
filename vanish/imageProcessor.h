@@ -13,8 +13,7 @@
 
 #include "bucketData.h"
 
-using namespace std;
-using namespace cimg_library;
+namespace cimg = cimg_library;
 
 class ImageProcessor
 {
@@ -32,7 +31,7 @@ private:
 
 	BucketData *bucketData;
 
-	vector<string> fileNames;
+	std::vector<std::string> fileNames;
 
 	int getABucket(int value);
 	int getBBucket(int value);
@@ -45,7 +44,7 @@ public:
 	ImageProcessor();
 	~ImageProcessor();
 
-	void setFiles(vector<string> fn);
+	void setFiles(std::vector<std::string> fn);
 	void setBucketSize(int newSize);
 
 	void processSequence();
