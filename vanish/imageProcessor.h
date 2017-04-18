@@ -50,6 +50,7 @@ public:
 
 	void processSequence();
 	void countBuckets();
+	void refineSolution();
 	void findBiggestBucket();
 	void createOutput();
 };

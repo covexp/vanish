@@ -16,6 +16,8 @@ ImageProcessor::ImageProcessor()
 
 ImageProcessor::~ImageProcessor()
 {
+	if (bucketData)
+		delete bucketData;
 }
 
 void ImageProcessor::setFiles(vector<string> fn)
@@ -79,6 +81,7 @@ void ImageProcessor::processSequence()
 {
 	countBuckets();
 	findBiggestBucket();
+	refineSolution();
 	createOutput();
 }
 
@@ -143,6 +146,49 @@ void ImageProcessor::findBiggestBucket()
 	}
 }
 
+void ImageProcessor::refineSolution()
+{
+	short int confidenceLow = (short int)(0.5f * frames);
+	short int confidenceHigh = (short int)(0.75f * frames);
+
+	for (int i = 0; i < width; i++)
+	{
+		for (int j = 0; j < height; j++)
+		{
+			int curIndex = i + j * width;
+
+			// Check to see if the pixel has a low-confidence solution
+			if (bucketData->finalBucket[curIndex].diff < confidenceLow)
+			{
+				bool done = false;
+
+				// Iterate through the pixel neighborhood for high confidence values
+				for (int m = i - 1; m < i + 1 && !done; m++)
+				{
+					for (int n = j - 1; n < j + 1 && !done; n++)
+					{
+						if (m >= 0 && m < width && n >= 0 && n < height)
+						{
+							int neighIndex = m + n * width;
+
+							if (bucketData->finalBucket[neighIndex].diff > confidenceHigh)
+							{
+								// Replace the current pixel's bucket with the neighbor's
+								bucketData->finalBucket[curIndex] = bucketData->finalBucket[neighIndex];
+								// Zero out the confidence
+								bucketData->finalBucket[curIndex].diff = 0;
+
+								// Break out of the two innermost loops
+								done = true;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
 void ImageProcessor::createOutput()
 {
 	vector<float> accRed(width * height);
@@ -197,7 +243,7 @@ void ImageProcessor::createOutput()
 	CImg<unsigned char> reconstructionImage(width, height, 1, 3, 0);
 	CImgDisplay main_disp(width, height, "Reconstructed background");
 
-	CImg<unsigned char> confidenceImage(width, height, 1, 1, 0);
+	CImg<unsigned char> confidenceImage(width, height, 1, 3, 0);
 	CImgDisplay aux_disp(width, height, "Confidence mask");
 
 	for (int i = 0; i < width; i++)
@@ -208,7 +254,15 @@ void ImageProcessor::createOutput()
 			reconstructionImage(i, j, 0, 1) = (unsigned char) (accGreen[i + j * width] / count[i + j * width]);
 			reconstructionImage(i, j, 0, 2) = (unsigned char) (accBlue[i + j * width] / count[i + j * width]);
 
-			confidenceImage(i, j, 0, 0) = (unsigned char) (bucketData->finalBucket[i + j * width].diff * maxVal / frames);
+			// Paint a red pixel where the confidence is zero
+			if(bucketData->finalBucket[i + j * width].diff == 0)
+				confidenceImage(i, j, 0, 0) = maxVal;
+			else
+			{
+				confidenceImage(i, j, 0, 0) = (unsigned char)(bucketData->finalBucket[i + j * width].diff * maxVal / frames);
+				confidenceImage(i, j, 0, 1) = (unsigned char)(bucketData->finalBucket[i + j * width].diff * maxVal / frames);
+				confidenceImage(i, j, 0, 2) = (unsigned char)(bucketData->finalBucket[i + j * width].diff * maxVal / frames);
+			}
 		}
 		main_disp.render(reconstructionImage);
 		main_disp.paint();

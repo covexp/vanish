@@ -24,7 +24,7 @@ const int DEFAULT_BITDEPTH = 8;
 int main(int argc, char *argv[])
 {
 	// Welcome message
-	cout << "Vanish - Version 0.03" << endl << endl;
+	cout << "Vanish - Version 0.03 Alpha" << endl << endl;
 
 	// Command line options
 	opt::options_description desc("Allowed options");
@@ -88,12 +88,12 @@ int main(int argc, char *argv[])
 	}
 
 	// Set up the parameters for the image processor
-	ImageProcessor *processor = new ImageProcessor();
-	processor->setBucketSize(bucketSize);
-	processor->setFiles(fileNames);
+	ImageProcessor processor;
+	processor.setBucketSize(bucketSize);
+	processor.setFiles(fileNames);
 
 	// Process the specified image sequence
-	processor->processSequence();
+	processor.processSequence();
 
 	return 0;
 }
