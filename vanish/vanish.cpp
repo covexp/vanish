@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 
 	if (!fs::exists(imagePath))
 	{
-		std::cout << "Directory " << inputDirectory << " not found! Terminating." << std::endl;
+		std::cerr << "Directory " << inputDirectory << " not found! Terminating." << std::endl;
 		exit(EXIT_FAILURE);
 	}
 
@@ -83,6 +83,12 @@ int main(int argc, char *argv[])
 				}
 			}
 		}
+	}
+
+	if (fileNames.size() < 1)
+	{
+		std::cerr << "Not enough files found in directory " << inputDirectory << "! Terminating." << std::endl;
+		exit(EXIT_FAILURE);
 	}
 
 	// Set up the parameters for the image processor
