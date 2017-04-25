@@ -20,6 +20,7 @@ ImageProcessor::~ImageProcessor()
 		delete bucketData;
 }
 
+// Set input file sequence
 void ImageProcessor::setFiles(std::vector<std::string> fn)
 {
 	fileNames = fn;
@@ -28,6 +29,7 @@ void ImageProcessor::setFiles(std::vector<std::string> fn)
 	initializeData();
 }
 
+// Infer processor parameters from the first file
 void ImageProcessor::inferParameters()
 {
 	if (fileNames.size() <= 0)
@@ -50,17 +52,20 @@ void ImageProcessor::inferParameters()
 	std::cout << "\tChannels:\t" << channels << std::endl;
 }
 
+// Set up the data structure to store bucket information
 void ImageProcessor::initializeData()
 {
 	bucketData = new BucketData(width, height, buckets);
 }
 
+// Set the size of a bucket in terms of color intensity values
 void ImageProcessor::setBucketSize(int newSize)
 {
 	bucketSize = newSize;
 	buckets = (maxVal + 1) / bucketSize;
 }
 
+// Find the correspoding A Bucket for the color intensity value
 int ImageProcessor::getABucket(int value)
 {
 	if (value < minVal)
@@ -72,19 +77,22 @@ int ImageProcessor::getABucket(int value)
 	return value / bucketSize;
 }
 
+// Find the corresponding B Bucket for the color intensity value
 int ImageProcessor::getBBucket(int value)
 {
 	return getABucket(value + (bucketSize / 2));
 }
 
+// Process the image sequence and create final output
 void ImageProcessor::processSequence()
 {
 	countBuckets();
 	findBiggestBucket();
 	refineSolution();
-	createOutput();
+	createFinal();
 }
 
+// Read the image files and count the pixel values into buckets
 void ImageProcessor::countBuckets()
 {
 	std::cout << std::endl << "Reading:\t";
@@ -112,6 +120,7 @@ void ImageProcessor::countBuckets()
 	}
 }
 
+// Find the biggest bucket for each pixel
 void ImageProcessor::findBiggestBucket()
 {
 	// Find the biggest bucket
@@ -146,6 +155,8 @@ void ImageProcessor::findBiggestBucket()
 	}
 }
 
+// Optional step to let neighboring buckets with stronger confidence influence the bucket values of
+// weak confidence pixels
 void ImageProcessor::refineSolution()
 {
 	short int confidenceLow = (short int)(0.5f * frames);
@@ -189,7 +200,8 @@ void ImageProcessor::refineSolution()
 	}
 }
 
-void ImageProcessor::createOutput()
+// Create final color image and a confidence mask, then display them
+void ImageProcessor::createFinal()
 {
 	std::vector<float> accRed(width * height);
 	std::vector<float> accGreen(width * height);

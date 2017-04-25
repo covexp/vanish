@@ -62,6 +62,7 @@ int main(int argc, char *argv[])
 	fs::path imagePath(fs::initial_path());
 	imagePath = fs::system_complete(fs::path(inputDirectory, fs::native));
 
+	// Check that directory exists
 	if (!fs::exists(imagePath))
 	{
 		std::cerr << "Directory " << inputDirectory << " not found! Terminating." << std::endl;
@@ -85,6 +86,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	// Check that enough image files were found
 	if (fileNames.size() < 1)
 	{
 		std::cerr << "Not enough files found in directory " << inputDirectory << "! Terminating." << std::endl;

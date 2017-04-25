@@ -51,6 +51,5 @@ public:
 	void countBuckets();
 	void refineSolution();
 	void findBiggestBucket();
-	void createOutput();
+	void createFinal();
 };
-
