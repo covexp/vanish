@@ -33,6 +33,7 @@ int main(int argc, char *argv[])
 		("bucket", opt::value<int>()->default_value(DEFAULT_BUCKETSIZE), "bucket size")
 		("depth", opt::value<int>()->default_value(DEFAULT_BITDEPTH), "channel bit depth")
 		("refine", opt::value<int>()->default_value(0), "number of refinement steps")
+		("samples", opt::value<int>()->default_value(64), "number of samples for bad frame detection")
 		;
 
 	opt::variables_map vm;
@@ -87,7 +88,7 @@ int main(int argc, char *argv[])
 	}
 
 	// Check that enough image files were found
-	if (fileNames.size() < 1)
+	if (fileNames.size() < 2)
 	{
 		std::cerr << "Not enough files found in directory " << inputDirectory << "! Terminating." << std::endl;
 		exit(EXIT_FAILURE);

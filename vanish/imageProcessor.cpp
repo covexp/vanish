@@ -255,6 +255,7 @@ void ImageProcessor::createFinal()
 	cimg::CImg<unsigned char> reconstructionImage(width, height, 1, 3, 0);
 	cimg::CImgDisplay main_disp(width, height, "Reconstructed background");
 
+	// Paint the confidence masK
 	cimg::CImg<unsigned char> confidenceImage(width, height, 1, 3, 0);
 	cimg::CImgDisplay aux_disp(width, height, "Confidence mask");
 
@@ -284,6 +285,14 @@ void ImageProcessor::createFinal()
 	}
 
 	std::cout << std::endl;
+
+	// Write the final color image to file
+	std::remove("output.png");
+	reconstructionImage.save_png("output.png");
+
+	// Write out the confidence mask
+	std::remove("confidence.png");
+	confidenceImage.save_png("confidence.png");
 
 	while (!main_disp.is_closed())
 	{
