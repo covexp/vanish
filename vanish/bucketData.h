@@ -16,8 +16,16 @@ public:
 	BucketData(int width, int height, int buckets);
 	~BucketData();
 
-	std::vector<short int> valueBucketA;
-	std::vector<short int> valueBucketB;
-	std::vector<BucketEntry> finalBucket;
+	std::vector<unsigned char> redBucketA;
+	std::vector<unsigned char> redBucketB;
+	std::vector<BucketEntry> redFinalBucket;
+
+	std::vector<unsigned char> greenBucketA;
+	std::vector<unsigned char> greenBucketB;
+	std::vector<BucketEntry> greenFinalBucket;
+
+	std::vector<unsigned char> blueBucketA;
+	std::vector<unsigned char> blueBucketB;
+	std::vector<BucketEntry> blueFinalBucket;
 };
 

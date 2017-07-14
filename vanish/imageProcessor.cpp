@@ -112,10 +112,10 @@ void ImageProcessor::countBuckets()
 				int pixel = newImage(i, j, 0, 1);
 
 				int a_bucket = getABucket(pixel);
-				bucketData->valueBucketA[i + j * width + a_bucket * (width * height)]++;
+				bucketData->greenBucketA[i + j * width + a_bucket * (width * height)]++;
 
 				int b_bucket = getBBucket(pixel);
-				bucketData->valueBucketB[i + j * width + b_bucket * (width * height)]++;
+				bucketData->greenBucketB[i + j * width + b_bucket * (width * height)]++;
 			}
 		}
 	}
@@ -135,23 +135,23 @@ void ImageProcessor::findBiggestBucket()
 
 			for (int bucket = 0; bucket < buckets; bucket++)
 			{
-				if (bucketData->valueBucketA[i + j * width + bucket * (width * height)] > maxCount)
+				if (bucketData->greenBucketA[i + j * width + bucket * (width * height)] > maxCount)
 				{
-					maxCount = bucketData->valueBucketA[i + j * width + bucket * (width * height)];
+					maxCount = bucketData->greenBucketA[i + j * width + bucket * (width * height)];
 					maxBucket = bucket;
 					maxTypeA = true;
 				}
-				if (bucketData->valueBucketB[i + j * width + bucket * (width * height)] > maxCount)
+				if (bucketData->greenBucketB[i + j * width + bucket * (width * height)] > maxCount)
 				{
-					maxCount = bucketData->valueBucketB[i + j * width + bucket * (width * height)];
+					maxCount = bucketData->greenBucketB[i + j * width + bucket * (width * height)];
 					maxBucket = bucket;
 					maxTypeA = false;
 				}
 			}
 
-			bucketData->finalBucket[i + j * width].id = maxBucket;
-			bucketData->finalBucket[i + j * width].isABucket = maxTypeA;
-			bucketData->finalBucket[i + j * width].diff = maxCount;
+			bucketData->greenFinalBucket[i + j * width].id = maxBucket;
+			bucketData->greenFinalBucket[i + j * width].isABucket = maxTypeA;
+			bucketData->greenFinalBucket[i + j * width].diff = maxCount;
 		}
 	}
 }
@@ -170,7 +170,7 @@ void ImageProcessor::refineSolution()
 			int curIndex = i + j * width;
 
 			// Check to see if the pixel has a low-confidence solution
-			if (bucketData->finalBucket[curIndex].diff < confidenceLow)
+			if (bucketData->greenFinalBucket[curIndex].diff < confidenceLow)
 			{
 				bool done = false;
 
@@ -183,12 +183,12 @@ void ImageProcessor::refineSolution()
 						{
 							int neighIndex = m + n * width;
 
-							if (bucketData->finalBucket[neighIndex].diff > confidenceHigh)
+							if (bucketData->greenFinalBucket[neighIndex].diff > confidenceHigh)
 							{
 								// Replace the current pixel's bucket with the neighbor's
-								bucketData->finalBucket[curIndex] = bucketData->finalBucket[neighIndex];
+								bucketData->greenFinalBucket[curIndex] = bucketData->greenFinalBucket[neighIndex];
 								// Zero out the confidence
-								bucketData->finalBucket[curIndex].diff = 0;
+								bucketData->greenFinalBucket[curIndex].diff = 0;
 
 								// Break out of the two innermost loops
 								done = true;
@@ -225,11 +225,11 @@ void ImageProcessor::createFinal()
 				// Get the green pixel value
 				int pixelRed = newImage(i, j, 0, 1);
 
-				if (bucketData->finalBucket[i + j * width].isABucket)
+				if (bucketData->greenFinalBucket[i + j * width].isABucket)
 				{
 					int pixABucket = getABucket(pixelRed);
 
-					if (pixABucket == bucketData->finalBucket[i + j * width].id)
+					if (pixABucket == bucketData->greenFinalBucket[i + j * width].id)
 					{
 						accRed[i + j * width] += pixelRed;
 						accGreen[i + j * width] += newImage(i, j, 0, 1);
@@ -241,7 +241,7 @@ void ImageProcessor::createFinal()
 				{
 					int pixBBucket = getBBucket(pixelRed);
 
-					if (pixBBucket == bucketData->finalBucket[i + j * width].id)
+					if (pixBBucket == bucketData->greenFinalBucket[i + j * width].id)
 					{
 						accRed[i + j * width] += pixelRed;
 						accGreen[i + j * width] += newImage(i, j, 0, 1);
@@ -270,13 +270,13 @@ void ImageProcessor::createFinal()
 			reconstructionImage(i, j, 0, 2) = (unsigned char) (accBlue[i + j * width] / count[i + j * width]);
 
 			// Paint a red pixel where the confidence is zero
-			if(bucketData->finalBucket[i + j * width].diff == 0)
+			if(bucketData->greenFinalBucket[i + j * width].diff == 0)
 				confidenceImage(i, j, 0, 0) = maxVal;
 			else
 			{
-				confidenceImage(i, j, 0, 0) = (unsigned char)(bucketData->finalBucket[i + j * width].diff * maxVal / frames);
-				confidenceImage(i, j, 0, 1) = (unsigned char)(bucketData->finalBucket[i + j * width].diff * maxVal / frames);
-				confidenceImage(i, j, 0, 2) = (unsigned char)(bucketData->finalBucket[i + j * width].diff * maxVal / frames);
+				confidenceImage(i, j, 0, 0) = (unsigned char)(bucketData->greenFinalBucket[i + j * width].diff * maxVal / frames);
+				confidenceImage(i, j, 0, 1) = (unsigned char)(bucketData->greenFinalBucket[i + j * width].diff * maxVal / frames);
+				confidenceImage(i, j, 0, 2) = (unsigned char)(bucketData->greenFinalBucket[i + j * width].diff * maxVal / frames);
 			}
 		}
 		main_disp.render(reconstructionImage);
