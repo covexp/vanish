@@ -108,7 +108,8 @@ void ImageProcessor::countBuckets()
 		{
 			for (int j = 0; j < height; j++)
 			{
-				int pixel = newImage(i, j, 0, 0);
+				// Get the green pixel value
+				int pixel = newImage(i, j, 0, 1);
 
 				int a_bucket = getABucket(pixel);
 				bucketData->valueBucketA[i + j * width + a_bucket * (width * height)]++;
@@ -221,7 +222,8 @@ void ImageProcessor::createFinal()
 		{
 			for (int j = 0; j < height; j++)
 			{
-				int pixelRed = newImage(i, j, 0, 0);
+				// Get the green pixel value
+				int pixelRed = newImage(i, j, 0, 1);
 
 				if (bucketData->finalBucket[i + j * width].isABucket)
 				{
