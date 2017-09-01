@@ -193,7 +193,7 @@ void ImageProcessor::findBiggestBucket()
                         greenMaxBucket = bucket;
                         greenMaxTypeA = true;
                     }
-                    if (bucketData->redBucketB[i + j * width + bucket * (width * height)] > greenMaxCount)
+                    if (bucketData->greenBucketB[i + j * width + bucket * (width * height)] > greenMaxCount)
                     {
                         greenMaxCount = bucketData->greenBucketB[i + j * width + bucket * (width * height)];
                         greenMaxBucket = bucket;
@@ -214,13 +214,13 @@ void ImageProcessor::findBiggestBucket()
 
                 for (int bucket = 0; bucket < buckets; bucket++)
                 {
-                    if (bucketData->redBucketA[i + j * width + bucket * (width * height)] > blueMaxCount)
+                    if (bucketData->blueBucketA[i + j * width + bucket * (width * height)] > blueMaxCount)
                     {
                         blueMaxCount = bucketData->blueBucketA[i + j * width + bucket * (width * height)];
                         blueMaxBucket = bucket;
                         blueMaxTypeA = true;
                     }
-                    if (bucketData->redBucketB[i + j * width + bucket * (width * height)] > blueMaxCount)
+                    if (bucketData->blueBucketB[i + j * width + bucket * (width * height)] > blueMaxCount)
                     {
                         blueMaxCount = bucketData->blueBucketB[i + j * width + bucket * (width * height)];
                         blueMaxBucket = bucket;
@@ -340,32 +340,6 @@ void ImageProcessor::createFinal()
                 accBlue[idx] += pixelBlue;
                 count[idx]++;
 
-                // OLD CODE OLD CODE
-                //if (bucketData->redFinalBucket[i + j * width].isABucket)
-                //{
-                //	int pixABucket = getABucket(pixelRed);
-
-                //	if (pixABucket == bucketData->redFinalBucket[i + j * width].id)
-                //	{
-                //		accRed[i + j * width] += pixelRed;
-                //		accGreen[i + j * width] += newImage(i, j, 0, 1);
-                //		accBlue[i + j * width] += newImage(i, j, 0, 2);
-                //		count[i + j * width]++;
-                //	}
-                //}
-                //else
-                //{
-                //	int pixBBucket = getBBucket(pixelRed);
-
-                //	if (pixBBucket == bucketData->redFinalBucket[i + j * width].id)
-                //	{
-                //		accRed[i + j * width] += pixelRed;
-                //		accGreen[i + j * width] += newImage(i, j, 0, 1);
-                //		accBlue[i + j * width] += newImage(i, j, 0, 2);
-                //		count[i + j * width]++;
-                //	}
-                //}
-                // OLD CODE OLD CODE
             }
         }
     }
@@ -411,7 +385,8 @@ void ImageProcessor::createFinal()
             unsigned char valueGreen = greenEntry.id * bucketSize;
 
             if(!greenEntry.isABucket)
-                valueGreen -= bucketSize / 2;
+                valueGreen = 0;
+//                valueGreen -= bucketSize / 2;
 
             greenBucketImage(i, j, 0, 0) = valueGreen;
 
