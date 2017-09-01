@@ -96,7 +96,7 @@ void ImageProcessor::processSequence()
 {
     countBuckets();
     findBiggestBucket();
-    refineSolution();
+//    refineSolution();
     createFinal();
 }
 
@@ -240,45 +240,8 @@ void ImageProcessor::findBiggestBucket()
 // weak confidence pixels
 void ImageProcessor::refineSolution()
 {
-    short int confidenceLow = (short int)(0.5f * frames);
-    short int confidenceHigh = (short int)(0.75f * frames);
+    // Removed pending a better implementation
 
-    for (int i = 0; i < width; i++)
-    {
-        for (int j = 0; j < height; j++)
-        {
-            int idx = i + j * width;
-
-            // Check to see if the pixel has a low-confidence solution
-            if (bucketData->greenFinalBucket[idx].diff < confidenceLow)
-            {
-                bool done = false;
-
-                // Iterate through the pixel neighborhood for high confidence values
-                for (int m = i - 1; m < i + 1 && !done; m++)
-                {
-                    for (int n = j - 1; n < j + 1 && !done; n++)
-                    {
-                        if (m >= 0 && m < width && n >= 0 && n < height)
-                        {
-                            int neighIndex = m + n * width;
-
-                            if (bucketData->greenFinalBucket[neighIndex].diff > confidenceHigh)
-                            {
-                                // Replace the current pixel's bucket with the neighbor's
-                                bucketData->greenFinalBucket[idx] = bucketData->greenFinalBucket[neighIndex];
-                                // Zero out the confidence
-                                bucketData->greenFinalBucket[idx].diff = 0;
-
-                                // Break out of the two innermost loops
-                                done = true;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
 }
 
 // Create final color image and a confidence mask, then display them
@@ -380,15 +343,27 @@ void ImageProcessor::createFinal()
                 confidenceImage(i, j, 0, 2) = 0;
             }
 
-
             BucketEntry greenEntry = bucketData->greenFinalBucket[i + j * width];
             unsigned char valueGreen = greenEntry.id * bucketSize;
 
             if(!greenEntry.isABucket)
+            {
                 valueGreen = 0;
 //                valueGreen -= bucketSize / 2;
 
+            }
+
             greenBucketImage(i, j, 0, 0) = valueGreen;
+
+            if(greenEntry.diff < 1)
+            {
+                confidenceImage(i, j, 0, 0) = 0;
+                confidenceImage(i, j, 0, 1) = 255;
+                confidenceImage(i, j, 0, 2) = 0;
+
+                std::cout << "Green offender - " << (int) greenEntry.id << " " << greenEntry.diff << " " << greenEntry.isABucket << std::endl;
+            }
+
 
         }
         main_disp.render(reconstructionImage);
