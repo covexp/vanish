@@ -335,10 +335,10 @@ void ImageProcessor::createFinal()
 //                if (!blueEntry.isABucket && blueEntry.id != getBBucket(pixelBlue))
 //                    continue;
 
-                accRed[i + j * width] += pixelRed;
-                accGreen[i + j * width] += pixelGreen;
-                accBlue[i + j * width] += pixelBlue;
-                count[i + j * width]++;
+                accRed[idx] += pixelRed;
+                accGreen[idx] += pixelGreen;
+                accBlue[idx] += pixelBlue;
+                count[idx]++;
 
                 // OLD CODE OLD CODE
                 //if (bucketData->redFinalBucket[i + j * width].isABucket)
