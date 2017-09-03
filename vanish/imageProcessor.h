@@ -9,7 +9,7 @@
 #include <vector>
 #include <array>
 
-#include "../../cimg/CImg.h"
+#include <CImg.h>
 
 #include "bucketData.h"
 
@@ -18,38 +18,39 @@ namespace cimg = cimg_library;
 class ImageProcessor
 {
 private:
-	int frames;
-	int width;
-	int height;
-	int channels;
-	int depth;
+    int frames;
+    int width;
+    int height;
+    int channels;
+    int depth;
 
-	int minVal;
-	int maxVal;
-	int bucketSize;
-	int buckets;
+    int minVal;
+    int maxVal;
+    int bucketSize;
+    int buckets;
 
-	BucketData *bucketData;
+    BucketData *bucketData;
 
-	std::vector<std::string> fileNames;
+    std::vector<std::string> fileNames;
 
-	int getABucket(int value);
-	int getBBucket(int value);
+    int getABucket(int value);
+    int getBBucket(int value);
 
-	void inferParameters();
+    void inferParameters();
 
-	void initializeData();
+    void initializeData();
 
+    void printInformation(int x, int y);
 public:
-	ImageProcessor();
-	~ImageProcessor();
+    ImageProcessor();
+    ~ImageProcessor();
 
-	void setFiles(std::vector<std::string> fn);
-	void setBucketSize(int newSize);
+    void setFiles(std::vector<std::string> fn);
+    void setBucketSize(int newSize);
 
-	void processSequence();
-	void countBuckets();
-	void refineSolution();
-	void findBiggestBucket();
-	void createFinal();
+    void processSequence();
+    void countBuckets();
+    void refineSolution();
+    void findBiggestBucket();
+    void createFinal();
 };
