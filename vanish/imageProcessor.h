@@ -40,6 +40,7 @@ private:
 
     void initializeData();
 
+    void printInformation(int x, int y);
 public:
     ImageProcessor();
     ~ImageProcessor();

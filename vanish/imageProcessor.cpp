@@ -50,6 +50,8 @@ void ImageProcessor::inferParameters()
     std::cout << "\tWidth:\t\t" << width << std::endl;
     std::cout << "\tHeight:\t\t" << height << std::endl;
     std::cout << "\tChannels:\t" << channels << std::endl;
+    std::cout << "\tBuckets:\t" << buckets << std::endl;
+    std::cout << "\tBucket size:\t" << bucketSize << std::endl;
 }
 
 // Set up the data structure to store bucket information
@@ -244,17 +246,47 @@ void ImageProcessor::refineSolution()
 
 }
 
+void ImageProcessor::printInformation(int x, int y)
+{
+    int idx = x + y * width;
+
+    std::cout << std::endl << std::endl;
+    std::cout << "Blue channel information for pixel at " << x << "x" << y << std::endl;
+
+    // General information
+    std::cout << "\tCount: " << bucketData->blueFinalBucket[idx].diff << std::endl;
+
+    if(bucketData->blueFinalBucket[idx].isABucket)
+        std::cout << "\tBucket is an A bucket." << std::endl;
+    else
+        std::cout << "\tBucket is a B bucket." << std::endl;
+
+    // Print buckets
+    for(int i = 0; i < buckets; i++)
+    {
+        int acount = bucketData->blueBucketA[idx + i * (width * height)];
+        int bcount = bucketData->blueBucketB[idx + i * (width * height)];
+
+        std::cout << "\tA: " << acount << " B: " << bcount << std::endl;
+    }
+}
+
 // Create final color image and a confidence mask, then display them
 void ImageProcessor::createFinal()
 {
+    int confLevel = frames / 2;
+
     std::vector<float> accRed(width * height);
     std::vector<float> accGreen(width * height);
     std::vector<float> accBlue(width * height);
     std::vector<int> count(width * height);
 
-    std::cout << std::endl << "Averaging:\t";
+    std::vector<float> totalRed(width * height);
+    std::vector<float> totalGreen(width * height);
+    std::vector<float> totalBlue(width * height);
 
-    // Average out all the pixel values from the biggest bucket
+    std::cout << std::endl << "1st pass:\t";
+
     for (auto &file : fileNames)
     {
         cimg::CImg<unsigned char> newImage(file.c_str());
@@ -271,14 +303,18 @@ void ImageProcessor::createFinal()
                 int pixelGreen = newImage(i, j, 0, 1);
                 int pixelBlue = newImage(i, j, 0, 2);
 
+                totalRed[idx] += pixelRed;
+                totalGreen[idx] += pixelGreen;
+                totalBlue[idx] += pixelBlue;
+
                 // Test red
-//                BucketEntry redEntry = bucketData->redFinalBucket[i + j * width];
+                BucketEntry redEntry = bucketData->redFinalBucket[idx];
 
-//                if (redEntry.isABucket && redEntry.id != getABucket(pixelRed))
-//                    continue;
+                if (redEntry.isABucket && redEntry.id != getABucket(pixelRed))
+                    continue;
 
-//                if (!redEntry.isABucket && redEntry.id != getBBucket(pixelRed))
-//                    continue;
+                if (!redEntry.isABucket && redEntry.id != getBBucket(pixelRed))
+                    continue;
 
                 // Test green
                 BucketEntry greenEntry = bucketData->greenFinalBucket[idx];
@@ -290,19 +326,115 @@ void ImageProcessor::createFinal()
                     continue;
 
                 // Test blue
-//                BucketEntry blueEntry = bucketData->blueFinalBucket[i + j * width];
+                BucketEntry blueEntry = bucketData->blueFinalBucket[idx];
 
-//                if (blueEntry.isABucket && blueEntry.id != getABucket(pixelBlue))
-//                    continue;
+                if (blueEntry.isABucket && blueEntry.id != getABucket(pixelBlue))
+                    continue;
 
-//                if (!blueEntry.isABucket && blueEntry.id != getBBucket(pixelBlue))
-//                    continue;
+                if (!blueEntry.isABucket && blueEntry.id != getBBucket(pixelBlue))
+                    continue;
 
                 accRed[idx] += pixelRed;
                 accGreen[idx] += pixelGreen;
                 accBlue[idx] += pixelBlue;
                 count[idx]++;
 
+            }
+        }
+    }
+
+//    for (int i = 0; i < width; i++)
+//    {
+//        for (int j = 0; j < height; j++)
+//        {
+//            int idx = i + j * width;
+
+//            if(count[idx] < confLevel)
+//            {
+//                accRed[idx] = 0;
+//                accGreen[idx] = 0;
+//                accBlue[idx] = 0;
+//                count[idx] = 0;
+//            }
+//        }
+//    }
+
+    std::cout << std::endl << "2nd pass:\t";
+
+    for (auto &file : fileNames)
+    {
+        cimg::CImg<unsigned char> newImage(file.c_str());
+
+        std::cout << "|";
+
+        for(int i = 0; i < width; i++)
+        {
+            for(int j = 0; j < height; j++)
+            {
+                int idx = i + j * width;
+
+                if(count[idx] >= confLevel)
+                    continue;
+
+                BucketEntry redEntry = bucketData->redFinalBucket[idx];
+                BucketEntry greenEntry = bucketData->greenFinalBucket[idx];
+                BucketEntry blueEntry = bucketData->blueFinalBucket[idx];
+
+                int maxDiff = 0;
+                int redDiff = redEntry.diff;
+                int greenDiff = greenEntry.diff;
+                int blueDiff = blueEntry.diff;
+
+                maxDiff = std::max(redDiff, maxDiff);
+                maxDiff = std::max(greenDiff, maxDiff);
+                maxDiff = std::max(blueDiff, maxDiff);
+
+                if(maxDiff < confLevel)
+                    continue;
+
+                int pixelRed = newImage(i, j, 0, 0);
+                int pixelGreen = newImage(i, j, 0, 1);
+                int pixelBlue = newImage(i, j, 0, 2);
+
+                if(redDiff == maxDiff)
+                {
+                    if (redEntry.isABucket && redEntry.id != getABucket(pixelRed))
+                        continue;
+
+                    if (!redEntry.isABucket && redEntry.id != getBBucket(pixelRed))
+                        continue;
+
+                    accRed[idx] += pixelRed;
+                    accGreen[idx] += pixelGreen;
+                    accBlue[idx] += pixelBlue;
+                    count[idx]++;
+                }
+                else if(greenDiff == maxDiff)
+                {
+                    if (greenEntry.isABucket && greenEntry.id != getABucket(pixelGreen))
+                        continue;
+
+                    if (!greenEntry.isABucket && greenEntry.id != getBBucket(pixelGreen))
+                        continue;
+
+                    accRed[idx] += pixelRed;
+                    accGreen[idx] += pixelGreen;
+                    accBlue[idx] += pixelBlue;
+                    count[idx]++;
+                }
+                else
+                {
+                    if (blueEntry.isABucket && blueEntry.id != getABucket(pixelBlue))
+                        continue;
+
+                    if (!blueEntry.isABucket && blueEntry.id != getBBucket(pixelBlue))
+                        continue;
+
+                    accRed[idx] += pixelRed;
+                    accGreen[idx] += pixelGreen;
+                    accBlue[idx] += pixelBlue;
+                    count[idx]++;
+                }
             }
         }
     }
@@ -316,8 +448,10 @@ void ImageProcessor::createFinal()
     cimg::CImgDisplay aux_disp(width, height, "Confidence mask");
 
     // Paint the green buckets for debugging
-    cimg::CImg<unsigned char> greenBucketImage(width, height, 1, 1, 0);
-    cimg::CImgDisplay green_disp(width, height, "Green buckets");
+    cimg::CImg<unsigned char> blueBucketImage(width, height, 1, 1, 0);
+    cimg::CImgDisplay green_disp(width, height, "Red buckets");
+
+    int lowConfCount = 0;
 
     for (int i = 0; i < width; i++)
     {
@@ -325,9 +459,9 @@ void ImageProcessor::createFinal()
         {
             int idx = i + j * width;
 
-            reconstructionImage(i, j, 0, 0) = (unsigned char) (accRed[i + j * width] / count[i + j * width]);
-            reconstructionImage(i, j, 0, 1) = (unsigned char) (accGreen[i + j * width] / count[i + j * width]);
-            reconstructionImage(i, j, 0, 2) = (unsigned char) (accBlue[i + j * width] / count[i + j * width]);
+            reconstructionImage(i, j, 0, 0) = (unsigned char) (accRed[idx] / count[idx]);
+            reconstructionImage(i, j, 0, 1) = (unsigned char) (accGreen[idx] / count[idx]);
+            reconstructionImage(i, j, 0, 2) = (unsigned char) (accBlue[idx] / count[idx]);
 
             int confidence = (int) (count[i + j * width] * ((float)256.0f / frames));
             confidence = std::min(confidence, 255);
@@ -336,34 +470,54 @@ void ImageProcessor::createFinal()
             confidenceImage(i, j, 0, 1) = (unsigned char) confidence;
             confidenceImage(i, j, 0, 2) = (unsigned char) confidence;
 
-            if(count[idx] < 1)
+            if(count[idx] < confLevel)
             {
+                lowConfCount++;
+
                 confidenceImage(i, j, 0, 0) = 255;
-                confidenceImage(i, j, 0, 1) = 0;
-                confidenceImage(i, j, 0, 2) = 0;
+                confidenceImage(i, j, 0, 1) /= 2;
+                confidenceImage(i, j, 0, 2) /= 2;
+
+//                printInformation(i, j);
+
+                float newRed = (float) totalRed[idx] / frames;
+                float newGreen = (float) totalGreen[idx] / frames;
+                float newBlue = (float) totalBlue[idx] / frames;
+
+//                newRed = 255.0f;
+//                newGreen = 255.0f;
+//                newBlue = 0.0f;
+
+                reconstructionImage(i, j, 0, 0) = (unsigned char) newRed;
+                reconstructionImage(i, j, 0, 1) = (unsigned char) newGreen;
+                reconstructionImage(i, j, 0, 2) = (unsigned char) newBlue;
             }
 
-            BucketEntry greenEntry = bucketData->greenFinalBucket[i + j * width];
-            unsigned char valueGreen = greenEntry.id * bucketSize;
+            BucketEntry blueEntry = bucketData->blueFinalBucket[i + j * width];
+            unsigned char valueBlue = blueEntry.id * bucketSize;
 
-            if(!greenEntry.isABucket)
+            if(!blueEntry.isABucket)
             {
-                valueGreen = 0;
-//                valueGreen -= bucketSize / 2;
+                if(valueBlue > bucketSize / 2)
+                    valueBlue -= bucketSize / 2;
+                else
+                    valueBlue = 0;
 
+                confidenceImage(i, j, 0, 0) /= 2;
+                confidenceImage(i, j, 0, 1) /= 2;
+                confidenceImage(i, j, 0, 2) = 255;
             }
 
-            greenBucketImage(i, j, 0, 0) = valueGreen;
+            blueBucketImage(i, j, 0, 0) = valueBlue;
 
-            if(greenEntry.diff < 1)
+            if(blueEntry.diff < 1)
             {
-                confidenceImage(i, j, 0, 0) = 0;
+                confidenceImage(i, j, 0, 0) /= 2;
                 confidenceImage(i, j, 0, 1) = 255;
-                confidenceImage(i, j, 0, 2) = 0;
+                confidenceImage(i, j, 0, 2) /= 2;
 
-                std::cout << "Green offender - " << (int) greenEntry.id << " " << greenEntry.diff << " " << greenEntry.isABucket << std::endl;
+                std::cout << "Blue offender - " << (int) blueEntry.id << " " << blueEntry.diff << " " << blueEntry.isABucket << std::endl;
             }
-
 
         }
         main_disp.render(reconstructionImage);
@@ -372,9 +526,11 @@ void ImageProcessor::createFinal()
         aux_disp.render(confidenceImage);
         aux_disp.paint();
 
-        green_disp.render(greenBucketImage);
+        green_disp.render(blueBucketImage);
         green_disp.paint();
     }
+
+    std::cout << std::endl << "Low confidence pixels: " << lowConfCount << std::endl;
 
     std::cout << std::endl;
 

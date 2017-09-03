@@ -96,6 +96,13 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
+    // Check the bucket size
+    if(bucketSize < 1 || bucketSize > 128)
+    {
+        std::cerr << "Invalid bucket size. Using default value." << std::endl;
+        bucketSize = DEFAULT_BUCKETSIZE;
+    }
+
     // Set up the parameters for the image processor
     ImageProcessor processor;
     processor.setBucketSize(bucketSize);
