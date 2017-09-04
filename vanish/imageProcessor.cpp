@@ -112,7 +112,7 @@ void ImageProcessor::countBuckets()
     {
         cimg::CImg<unsigned char> newImage(file.c_str());
 
-        std::cout << "|";
+        std::cout << "|" << std::flush;
 
         for (int i = 0; i < width; i++)
         {
@@ -291,7 +291,7 @@ void ImageProcessor::createFinal()
     {
         cimg::CImg<unsigned char> newImage(file.c_str());
 
-        std::cout << "|";
+        std::cout << "|" << std::flush;
 
         for (int i = 0; i < width; i++)
         {
@@ -365,7 +365,7 @@ void ImageProcessor::createFinal()
     {
         cimg::CImg<unsigned char> newImage(file.c_str());
 
-        std::cout << "|";
+        std::cout << "|" << std::flush;
 
         for(int i = 0; i < width; i++)
         {
