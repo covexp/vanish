@@ -7,9 +7,9 @@
 Input: image sequence with a stable background and moving foreground objects
 Output: single image of the background with transient details removed
 
-!(image sequence)[http://covex.info/wp-content/uploads/2017/09/east_imperial_anim.gif]
+![image sequence](http://covex.info/wp-content/uploads/2017/09/east_imperial_anim.gif)
 
-!(reconstructed background)[http://covex.info/wp-content/uploads/2017/09/output.png]
+![reconstructed background](http://covex.info/wp-content/uploads/2017/09/output.png)
 
 The processing works on a pixel-by-pixel basis by classifying pixels in each input color channel into buckets, and then finding the mode–the biggest bucket–for each pixel. The final image is then reconstructed from the original pixel values, using the mode bucket to either accept or reject any given frame.
 
