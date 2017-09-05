@@ -23,6 +23,7 @@ Boost (http://www.boost.org/)
 
 ## Usage
 
+<pre>
 vanish [options]
 
 Allowed options:
@@ -34,4 +35,5 @@ Allowed options:
   --refine arg (=0)     number of refinement steps
   --samples arg (=64)   number of samples for bad frame detection
 
-Ex: vanish --dir east_imperial/ --type tif --bucket 16
+Example:  vanish --dir east_imperial/ --type tif --bucket 16
+</pre>
