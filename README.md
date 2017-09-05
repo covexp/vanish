@@ -5,6 +5,7 @@
 ## Purpose
 
 Input: image sequence with a stable background and moving foreground objects
+
 Output: single image of the background with transient details removed
 
 ![image sequence](http://covex.info/wp-content/uploads/2017/09/east_imperial_anim.gif)
