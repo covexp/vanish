@@ -21,6 +21,7 @@ private:
     int frames;
     int width;
     int height;
+    int size;
     int channels;
     int depth;
 

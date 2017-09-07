@@ -7,6 +7,7 @@ ImageProcessor::ImageProcessor()
 {
     width = 480;
     height = 480;
+    size = width * height;
 
     minVal = 0;
     maxVal = 255;
@@ -43,6 +44,7 @@ void ImageProcessor::inferParameters()
     cimg::CImg<unsigned char> inspectImage(fileNames[0].c_str());
     width = inspectImage.width();
     height = inspectImage.height();
+    size = width * height;
     channels = inspectImage.spectrum();
 
     std::cout << "Image data" << std::endl;
@@ -98,7 +100,6 @@ void ImageProcessor::processSequence()
 {
     countBuckets();
     findBiggestBucket();
-//    refineSolution();
     createFinal();
 }
 
@@ -123,22 +124,22 @@ void ImageProcessor::countBuckets()
                 int bluePixel = newImage(i, j, 0, 2);
 
                 int a_bucket = getABucket(redPixel);
-                bucketData->redBucketA[i + j * width + a_bucket * (width * height)]++;
+                bucketData->redBucketA[i + j * width + a_bucket * (size)]++;
 
                 int b_bucket = getBBucket(redPixel);
-                bucketData->redBucketB[i + j * width + b_bucket * (width * height)]++;
+                bucketData->redBucketB[i + j * width + b_bucket * (size)]++;
 
                 a_bucket = getABucket(greenPixel);
-                bucketData->greenBucketA[i + j * width + a_bucket * (width * height)]++;
+                bucketData->greenBucketA[i + j * width + a_bucket * (size)]++;
 
                 b_bucket = getBBucket(greenPixel);
-                bucketData->greenBucketB[i + j * width + b_bucket * (width * height)]++;
+                bucketData->greenBucketB[i + j * width + b_bucket * (size)]++;
 
                 a_bucket = getABucket(bluePixel);
-                bucketData->blueBucketA[i + j * width + a_bucket * (width * height)]++;
+                bucketData->blueBucketA[i + j * width + a_bucket * (size)]++;
 
                 b_bucket = getBBucket(bluePixel);
-                bucketData->blueBucketB[i + j * width + b_bucket * (width * height)]++;
+                bucketData->blueBucketB[i + j * width + b_bucket * (size)]++;
             }
         }
     }
@@ -162,15 +163,15 @@ void ImageProcessor::findBiggestBucket()
 
                 for (int bucket = 0; bucket < buckets; bucket++)
                 {
-                    if (bucketData->redBucketA[i + j * width + bucket * (width * height)] > redMaxCount)
+                    if (bucketData->redBucketA[i + j * width + bucket * (size)] > redMaxCount)
                     {
-                        redMaxCount = bucketData->redBucketA[i + j * width + bucket * (width * height)];
+                        redMaxCount = bucketData->redBucketA[i + j * width + bucket * (size)];
                         redMaxBucket = bucket;
                         redMaxTypeA = true;
                     }
-                    if (bucketData->redBucketB[i + j * width + bucket * (width * height)] > redMaxCount)
+                    if (bucketData->redBucketB[i + j * width + bucket * (size)] > redMaxCount)
                     {
-                        redMaxCount = bucketData->redBucketB[i + j * width + bucket * (width * height)];
+                        redMaxCount = bucketData->redBucketB[i + j * width + bucket * (size)];
                         redMaxBucket = bucket;
                         redMaxTypeA = false;
                     }
@@ -189,15 +190,15 @@ void ImageProcessor::findBiggestBucket()
 
                 for (int bucket = 0; bucket < buckets; bucket++)
                 {
-                    if (bucketData->greenBucketA[i + j * width + bucket * (width * height)] > greenMaxCount)
+                    if (bucketData->greenBucketA[i + j * width + bucket * (size)] > greenMaxCount)
                     {
-                        greenMaxCount = bucketData->greenBucketA[i + j * width + bucket * (width * height)];
+                        greenMaxCount = bucketData->greenBucketA[i + j * width + bucket * (size)];
                         greenMaxBucket = bucket;
                         greenMaxTypeA = true;
                     }
-                    if (bucketData->greenBucketB[i + j * width + bucket * (width * height)] > greenMaxCount)
+                    if (bucketData->greenBucketB[i + j * width + bucket * (size)] > greenMaxCount)
                     {
-                        greenMaxCount = bucketData->greenBucketB[i + j * width + bucket * (width * height)];
+                        greenMaxCount = bucketData->greenBucketB[i + j * width + bucket * (size)];
                         greenMaxBucket = bucket;
                         greenMaxTypeA = false;
                     }
@@ -216,15 +217,15 @@ void ImageProcessor::findBiggestBucket()
 
                 for (int bucket = 0; bucket < buckets; bucket++)
                 {
-                    if (bucketData->blueBucketA[i + j * width + bucket * (width * height)] > blueMaxCount)
+                    if (bucketData->blueBucketA[i + j * width + bucket * (size)] > blueMaxCount)
                     {
-                        blueMaxCount = bucketData->blueBucketA[i + j * width + bucket * (width * height)];
+                        blueMaxCount = bucketData->blueBucketA[i + j * width + bucket * (size)];
                         blueMaxBucket = bucket;
                         blueMaxTypeA = true;
                     }
-                    if (bucketData->blueBucketB[i + j * width + bucket * (width * height)] > blueMaxCount)
+                    if (bucketData->blueBucketB[i + j * width + bucket * (size)] > blueMaxCount)
                     {
-                        blueMaxCount = bucketData->blueBucketB[i + j * width + bucket * (width * height)];
+                        blueMaxCount = bucketData->blueBucketB[i + j * width + bucket * (size)];
                         blueMaxBucket = bucket;
                         blueMaxTypeA = false;
                     }
@@ -236,14 +237,6 @@ void ImageProcessor::findBiggestBucket()
             }
         }
     }
-}
-
-// Optional step to let neighboring buckets with stronger confidence influence the bucket values of
-// weak confidence pixels
-void ImageProcessor::refineSolution()
-{
-    // Removed pending a better implementation
-
 }
 
 void ImageProcessor::printInformation(int x, int y)
@@ -264,8 +257,8 @@ void ImageProcessor::printInformation(int x, int y)
     // Print buckets
     for(int i = 0; i < buckets; i++)
     {
-        int acount = bucketData->blueBucketA[idx + i * (width * height)];
-        int bcount = bucketData->blueBucketB[idx + i * (width * height)];
+        int acount = bucketData->blueBucketA[idx + i * (size)];
+        int bcount = bucketData->blueBucketB[idx + i * (size)];
 
         std::cout << "\tA: " << acount << " B: " << bcount << std::endl;
     }
@@ -276,14 +269,14 @@ void ImageProcessor::createFinal()
 {
     int confLevel = frames / 2;
 
-    std::vector<float> accRed(width * height);
-    std::vector<float> accGreen(width * height);
-    std::vector<float> accBlue(width * height);
-    std::vector<int> count(width * height);
+    std::vector<float> accRed(size);
+    std::vector<float> accGreen(size);
+    std::vector<float> accBlue(size);
+    std::vector<int> count(size);
 
-    std::vector<float> totalRed(width * height);
-    std::vector<float> totalGreen(width * height);
-    std::vector<float> totalBlue(width * height);
+    std::vector<float> totalRed(size);
+    std::vector<float> totalGreen(size);
+    std::vector<float> totalBlue(size);
 
     std::cout << std::endl << "1st pass:\t";
 
@@ -530,6 +523,8 @@ void ImageProcessor::createFinal()
         green_disp.paint();
     }
 
+    std::cout << std::endl;
+    std::cout << std::endl << "Processing finished.";
     std::cout << std::endl << "Low confidence pixels: " << lowConfCount << std::endl;
 
     std::cout << std::endl;
