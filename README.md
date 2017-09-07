@@ -2,7 +2,7 @@
 
 *Remove transient objects from an image sequence*
 
-## Purpose
+## Objective
 
 Input: image sequence with a stable background and moving foreground objects
 
