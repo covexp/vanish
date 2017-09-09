@@ -13,6 +13,8 @@ ImageProcessor::ImageProcessor()
     maxVal = 255;
     bucketSize = 8;
     buckets = (maxVal + 1) / bucketSize;
+
+    confLevel = 0.5f;
 }
 
 ImageProcessor::~ImageProcessor()
@@ -185,7 +187,11 @@ void ImageProcessor::findBiggestBucket()
 // Create final color image and a confidence mask, then display them
 void ImageProcessor::createFinal()
 {
-    int confLevel = frames / 3;
+    int firstPassFail = 0;
+    int secondPassFail = 0;
+
+    int confFrames = confLevel * frames;
+    confFrames = std::max(confFrames, 1);
 
     std::vector<std::vector<float>> acc;
     std::vector<std::vector<float>> total;
@@ -200,6 +206,7 @@ void ImageProcessor::createFinal()
     }
 
     std::vector<int> count(size);
+    std::vector<bool> cleared(size);
 
     std::cout << std::endl << "1st pass:\t";
 
@@ -240,6 +247,23 @@ void ImageProcessor::createFinal()
         }
     }
 
+    // Count failed pixels for 1st pass
+    for(int i = 0; i < width; i++)
+    {
+        for(int j = 0; j < height; j++)
+        {
+            int idx = i + j * width;
+
+            if(count[idx] < confFrames)
+            {
+                firstPassFail++;
+                count[idx] = 0;
+            }
+            else
+                cleared[idx] = true;
+        }
+    }
+
     std::cout << std::endl << "2nd pass:\t";
 
     for (auto &file : fileNames)
@@ -254,7 +278,7 @@ void ImageProcessor::createFinal()
             {
                 int idx = i + j * width;
 
-                if(count[idx] >= confLevel)
+                if(cleared[idx])
                     continue;
 
                 int maxDiff = 0;
@@ -305,8 +329,6 @@ void ImageProcessor::createFinal()
     cimg::CImg<unsigned char> blueBucketImage(width, height, 1, 1, 0);
     cimg::CImgDisplay green_disp(width, height, "Blue buckets");
 
-    int lowConfCount = 0;
-
     for (int i = 0; i < width; i++)
     {
         for (int j = 0; j < height; j++)
@@ -324,27 +346,19 @@ void ImageProcessor::createFinal()
             confidenceImage(i, j, 0, 1) = (unsigned char) confidence;
             confidenceImage(i, j, 0, 2) = (unsigned char) confidence;
 
-            if(count[idx] < confLevel)
+            if(count[idx] < confFrames)
             {
-                lowConfCount++;
+                secondPassFail++;
 
                 confidenceImage(i, j, 0, 0) = 255;
                 confidenceImage(i, j, 0, 1) /= 2;
                 confidenceImage(i, j, 0, 2) /= 2;
 
-//                printInformation(i, j);
-
-                float newRed = (float) total[0][idx] / frames;
-                float newGreen = (float) total[1][idx] / frames;
-                float newBlue = (float) total[2][idx] / frames;
-
-//                newRed = 255.0f;
-//                newGreen = 255.0f;
-//                newBlue = 0.0f;
-
-                reconstructionImage(i, j, 0, 0) = (unsigned char) newRed;
-                reconstructionImage(i, j, 0, 1) = (unsigned char) newGreen;
-                reconstructionImage(i, j, 0, 2) = (unsigned char) newBlue;
+                for(int channel = 0; channel < channels; channel++)
+                {
+                    float val = (float) total[channel][idx] / frames;
+                    reconstructionImage(i, j, 0, channel) = (unsigned char) val;
+                }
             }
 
             BucketEntry blueEntry = bucketData[2]->finalBucket[i + j * width];
@@ -372,8 +386,9 @@ void ImageProcessor::createFinal()
     }
 
     std::cout << std::endl;
-    std::cout << std::endl << "Processing finished.";
-    std::cout << std::endl << "Low confidence pixels: " << lowConfCount << std::endl;
+    std::cout << std::endl << "Processing finished." << std::endl;
+    std::cout << std::endl << "1st pass failed pixels: " << firstPassFail;
+    std::cout << std::endl << "2nd pass failed pixels: " << secondPassFail << std::endl;
 
     std::cout << std::endl;
 

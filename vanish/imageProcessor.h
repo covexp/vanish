@@ -30,6 +30,8 @@ private:
     int bucketSize;
     int buckets;
 
+    float confLevel;
+
     std::vector<BucketData *> bucketData;
 
     std::vector<std::string> fileNames;
