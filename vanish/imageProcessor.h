@@ -30,7 +30,7 @@ private:
     int bucketSize;
     int buckets;
 
-    BucketData *bucketData;
+    std::vector<BucketData *> bucketData;
 
     std::vector<std::string> fileNames;
 
