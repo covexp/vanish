@@ -35,6 +35,7 @@ int main(int argc, char *argv[])
             ("depth", opt::value<int>()->default_value(DEFAULT_BITDEPTH), "channel bit depth")
             ("refine", opt::value<int>()->default_value(0), "number of refinement steps")
             ("samples", opt::value<int>()->default_value(64), "number of samples for bad frame detection")
+            ("conf", opt::value<float>()->default_value(0.25f), "confidence level")
             ;
 
     opt::variables_map vm;
@@ -59,6 +60,7 @@ int main(int argc, char *argv[])
     std::string inputDirectory = vm["dir"].as<std::string>();
     std::string fileExtension = vm["type"].as<std::string>();
     int bucketSize = vm["bucket"].as<int>();
+    float confLevel = vm["conf"].as<float>();
 
     // Find image files
     fs::path imagePath(fs::initial_path());
@@ -106,6 +108,7 @@ int main(int argc, char *argv[])
     // Set up the parameters for the image processor
     ImageProcessor processor;
     processor.setBucketSize(bucketSize);
+    processor.setConfidenceLevel(confLevel);
     processor.setFiles(fileNames);
 
     // Process the specified image sequence

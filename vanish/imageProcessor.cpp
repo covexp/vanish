@@ -14,7 +14,7 @@ ImageProcessor::ImageProcessor()
     bucketSize = 8;
     buckets = (maxVal + 1) / bucketSize;
 
-    confLevel = 0.5f;
+    confLevel = 0.25f;
 }
 
 ImageProcessor::~ImageProcessor()
@@ -52,13 +52,21 @@ void ImageProcessor::inferParameters()
     size = width * height;
     channels = inspectImage.spectrum();
 
+    printImageData();
+}
+
+void ImageProcessor::printImageData()
+{
     std::cout << "Image data" << std::endl;
     std::cout << "\tFrames:\t\t" << frames << std::endl;
     std::cout << "\tWidth:\t\t" << width << std::endl;
     std::cout << "\tHeight:\t\t" << height << std::endl;
-    std::cout << "\tChannels:\t" << channels << std::endl;
+    std::cout << "\tChannels:\t" << channels << std::endl << std::endl;
+
+    std::cout << "Settings" << std::endl;
     std::cout << "\tBuckets:\t" << buckets << std::endl;
     std::cout << "\tBucket size:\t" << bucketSize << std::endl;
+    std::cout << "\tConfidence:\t" << confLevel << std::endl;
 }
 
 // Set up the data structure to store bucket information
@@ -73,6 +81,12 @@ void ImageProcessor::setBucketSize(int newSize)
 {
     bucketSize = newSize;
     buckets = (maxVal + 1) / bucketSize;
+}
+
+// Set the confidence level as bucket hits / framecount
+void ImageProcessor::setConfidenceLevel(float newConf)
+{
+    confLevel = newConf;
 }
 
 // Find the correspoding A Bucket for the color intensity value
@@ -222,6 +236,8 @@ void ImageProcessor::createFinal()
             {
                 int idx = i + j * width;
 
+                int hits = 0;
+
                 for(int channel = 0; channel < channels; channel++)
                 {
                     int pixel = newImage(i, j, 0, channel);
@@ -236,6 +252,11 @@ void ImageProcessor::createFinal()
                     if(!entry.isABucket && entry.id != getBBucket(pixel))
                         continue;
 
+                    hits++;
+                }
+
+                if(hits == channels)
+                {
                     for(int k = 0; k < channels; k++)
                     {
                         acc[k][idx] += newImage(i, j, 0, k);
@@ -258,6 +279,11 @@ void ImageProcessor::createFinal()
             {
                 firstPassFail++;
                 count[idx] = 0;
+
+                for(int channel = 0; channel < channels; channel++)
+                {
+                    acc[channel][idx] = 0.0f;
+                }
             }
             else
                 cleared[idx] = true;
@@ -281,7 +307,7 @@ void ImageProcessor::createFinal()
                 if(cleared[idx])
                     continue;
 
-                int maxDiff = 0;
+                int maxDiff = -1;
                 int maxChannel = -1;
 
                 std::vector<BucketEntry> entry(channels);
@@ -325,10 +351,6 @@ void ImageProcessor::createFinal()
     cimg::CImg<unsigned char> confidenceImage(width, height, 1, 3, 0);
     cimg::CImgDisplay aux_disp(width, height, "Confidence mask");
 
-    // Paint the green buckets for debugging
-    cimg::CImg<unsigned char> blueBucketImage(width, height, 1, 1, 0);
-    cimg::CImgDisplay green_disp(width, height, "Blue buckets");
-
     for (int i = 0; i < width; i++)
     {
         for (int j = 0; j < height; j++)
@@ -360,29 +382,13 @@ void ImageProcessor::createFinal()
                     reconstructionImage(i, j, 0, channel) = (unsigned char) val;
                 }
             }
-
-            BucketEntry blueEntry = bucketData[2]->finalBucket[i + j * width];
-            unsigned char valueBlue = blueEntry.id * bucketSize;
-
-            if(!blueEntry.isABucket)
-            {
-                if(valueBlue > bucketSize / 2)
-                    valueBlue -= bucketSize / 2;
-                else
-                    valueBlue = 0;
-            }
-
-            blueBucketImage(i, j, 0, 0) = valueBlue;
         }
-
-        main_disp.render(reconstructionImage);
-        main_disp.paint();
 
         aux_disp.render(confidenceImage);
         aux_disp.paint();
 
-        green_disp.render(blueBucketImage);
-        green_disp.paint();
+        main_disp.render(reconstructionImage);
+        main_disp.paint();
     }
 
     std::cout << std::endl;

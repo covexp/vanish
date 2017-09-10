@@ -44,12 +44,14 @@ private:
     void initializeData();
 
     void printInformation(int x, int y);
+    void printImageData();
 public:
     ImageProcessor();
     ~ImageProcessor();
 
     void setFiles(std::vector<std::string> fn);
     void setBucketSize(int newSize);
+    void setConfidenceLevel(float newConf);
 
     void processSequence();
     void countBuckets();
