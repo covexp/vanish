@@ -55,6 +55,7 @@ void ImageProcessor::inferParameters()
     printImageData();
 }
 
+// Print data about the image and the current settings
 void ImageProcessor::printImageData()
 {
     std::cout << "Image data" << std::endl;
@@ -196,6 +197,27 @@ void ImageProcessor::findBiggestBucket()
             }
         }
     }
+}
+
+void ImageProcessor::printPixelInformation(int x, int y)
+{
+    int idx = x + y * width;
+
+    std::cout << std::endl << "Pixel information for " << x << ", " << y << std::endl;
+
+    std::cout << std::endl << "\tA Buckets: ";
+    for(int bucket = 0; bucket < buckets; bucket++)
+    {
+        std::cout << (int) bucketData[0]->bucketA[idx + bucket * size] << " ";
+    }
+
+    std::cout << std::endl << "\tB Buckets: ";
+    for(int bucket = 0; bucket < buckets; bucket++)
+    {
+        std::cout << (int) bucketData[0]->bucketB[idx + bucket * size] << " ";
+    }
+
+    std::cout << std::endl;
 }
 
 // Create final color image and a confidence mask, then display them
@@ -409,5 +431,17 @@ void ImageProcessor::createFinal()
     while (!main_disp.is_closed())
     {
         main_disp.wait();
+
+        if(main_disp.button())
+        {
+            int x = main_disp.mouse_x();
+            int y = main_disp.mouse_y();
+
+            if(x >= 0 && x < width && y >= 0 && y < height)
+            {
+                printPixelInformation(x, y);
+            }
+
+        }
     }
 }

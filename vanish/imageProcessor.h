@@ -43,7 +43,7 @@ private:
 
     void initializeData();
 
-    void printInformation(int x, int y);
+    void printPixelInformation(int x, int y);
     void printImageData();
 public:
     ImageProcessor();
