@@ -23,7 +23,7 @@ const int DEFAULT_BITDEPTH = 8;
 int main(int argc, char *argv[])
 {
     // Welcome message
-    std::cout << "Vanish - Version 0.04 Alpha" << std::endl << std::endl;
+	std::cout << "Vanish - Version 0.05 Alpha" << std::endl << std::endl;
 
     // Command line options
     opt::options_description desc("Allowed options");

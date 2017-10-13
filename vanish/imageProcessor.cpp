@@ -74,7 +74,7 @@ void ImageProcessor::printImageData()
 void ImageProcessor::initializeData()
 {
     for(int i = 0; i < channels; i++)
-        bucketData.push_back(new BucketData(width, height, buckets));
+		bucketData.push_back(new BucketData<unsigned char>(width, height, buckets));
 }
 
 // Set the size of a bucket in terms of color intensity values
@@ -266,7 +266,7 @@ void ImageProcessor::createFinal()
 
                     total[channel][idx] += pixel;
 
-                    BucketEntry entry = bucketData[channel]->finalBucket[idx];
+					BucketEntry<unsigned char> entry = bucketData[channel]->finalBucket[idx];
 
                     if(entry.isABucket && entry.id != getABucket(pixel))
                         continue;
@@ -332,7 +332,7 @@ void ImageProcessor::createFinal()
                 int maxDiff = -1;
                 int maxChannel = -1;
 
-                std::vector<BucketEntry> entry(channels);
+				std::vector<BucketEntry<unsigned char>> entry(channels);
                 std::vector<int> pixel(channels);
 
                 for(int channel = 0; channel < channels; channel++)
@@ -347,7 +347,7 @@ void ImageProcessor::createFinal()
                     }
                 }
 
-                BucketEntry maxEntry = entry[maxChannel];
+				BucketEntry<unsigned char> maxEntry = entry[maxChannel];
 
                 if(maxEntry.isABucket && maxEntry.id != getABucket(pixel[maxChannel]))
                     continue;

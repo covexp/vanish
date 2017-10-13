@@ -1,23 +1,31 @@
 #pragma once
 #include <vector>
 
+template <typename T>
 struct BucketEntry
 {
-    unsigned char id;
+	T id;
     bool isABucket;
     short int diff;
 };
 
+template <class T>
 class BucketData
 {
 private:
 
 public:
-    BucketData(int width, int height, int buckets);
-    ~BucketData();
+	BucketData(int width, int height, int buckets)
+	    : bucketA(width * height * buckets),
+	      bucketB(width * height * buckets),
+	      finalBucket(width * height)
+	{}
 
-    std::vector<unsigned char> bucketA;
-    std::vector<unsigned char> bucketB;
-    std::vector<BucketEntry> finalBucket;
+	~BucketData()
+	{}
+
+	std::vector<T> bucketA;
+	std::vector<T> bucketB;
+	std::vector<BucketEntry<T>> finalBucket;
 };
 

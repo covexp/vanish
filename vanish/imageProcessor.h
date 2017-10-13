@@ -32,7 +32,7 @@ private:
 
     float confLevel;
 
-    std::vector<BucketData *> bucketData;
+	std::vector<BucketData<unsigned char> *> bucketData;
 
     std::vector<std::string> fileNames;
 
