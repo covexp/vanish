@@ -40,11 +40,16 @@ private:
     int getBBucket(int value);
 
     void inferParameters();
-
     void initializeData();
 
     void printPixelInformation(int x, int y);
     void printImageData();
+
+	void countBuckets();
+	void refineSolution();
+	void findBiggestBucket();
+	void createFinal();
+
 public:
     ImageProcessor();
     ~ImageProcessor();
@@ -54,8 +59,4 @@ public:
     void setConfidenceLevel(float newConf);
 
     void processSequence();
-    void countBuckets();
-    void refineSolution();
-    void findBiggestBucket();
-    void createFinal();
 };
