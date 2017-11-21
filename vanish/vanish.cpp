@@ -10,7 +10,7 @@
 
 #include <CImg.h>
 
-#include "imageProcessor.h"
+#include "image_processor.h"
 
 namespace opt = boost::program_options;
 namespace fs = boost::filesystem;
@@ -106,7 +106,9 @@ int main(int argc, char *argv[])
     }
 
     // Set up the parameters for the image processor
-    ImageProcessor processor;
+	ImageProcessor _iProcessor;
+	ImageProcessorInterface &processor = _iProcessor;
+
     processor.setBucketSize(bucketSize);
     processor.setConfidenceLevel(confLevel);
     processor.setFiles(fileNames);
