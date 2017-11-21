@@ -3,7 +3,7 @@
 vanish: image_processor.o vanish.o
 	g++ -std=c++11 -o vanish image_processor.o vanish.o -lstdc++ -lm -lpthread -lX11 -lboost_system -lboost_filesystem -lboost_program_options
 
-image_processor.o: image_processor.cpp image_processor.h image_processor_interface.h
+image_processor.o: image_processor.cpp image_processor.h
 	g++ -std=c++11 -c image_processor.cpp
 
 vanish.o: vanish.cpp

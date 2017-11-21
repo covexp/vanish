@@ -106,9 +106,7 @@ int main(int argc, char *argv[])
     }
 
     // Set up the parameters for the image processor
-	ImageProcessor _iProcessor;
-	ImageProcessorInterface &processor = _iProcessor;
-
+	ImageProcessor processor;
     processor.setBucketSize(bucketSize);
     processor.setConfidenceLevel(confLevel);
     processor.setFiles(fileNames);
