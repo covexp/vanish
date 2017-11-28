@@ -86,7 +86,7 @@ void ImageProcessor::setConfidenceLevel(float newConf)
 }
 
 // Find the correspoding A Bucket for the color intensity value
-int ImageProcessor::getABucket(int value)
+int ImageProcessor::getABucket(int value) const
 {
     if (value < minVal)
         return 0;
@@ -98,7 +98,7 @@ int ImageProcessor::getABucket(int value)
 }
 
 // Find the corresponding B Bucket for the color intensity value
-int ImageProcessor::getBBucket(int value)
+int ImageProcessor::getBBucket(int value) const
 {
     value += bucketSize / 2;
 

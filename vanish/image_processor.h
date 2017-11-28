@@ -38,8 +38,8 @@ private:
 
     std::vector<std::string> fileNames;
 
-    int getABucket(int value);
-    int getBBucket(int value);
+	int getABucket(int value) const;
+	int getBBucket(int value) const;
 
     void inferParameters();
     void initializeData();
