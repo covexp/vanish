@@ -50,11 +50,11 @@ private:
 	void countBuckets();
 	void refineSolution();
 	void findBiggestBucket();
-	void createFinal();
+	void createFinal() const;
 
-	void firstPass(vec2d &acc, vec2d &total, std::vector<int> &count);
-	void countFailed(vec2d &acc, std::vector<int> &count, std::vector<bool> &cleared, int confFrames, int &failed);
-	void secondPass(vec2d &acc, vec2d &total, std::vector<int> &count, std::vector<bool> &cleared);
+	void firstPass(vec2d &acc, vec2d &total, std::vector<int> &count) const;
+	void countFailed(vec2d &acc, std::vector<int> &count, std::vector<bool> &cleared, int confFrames, int &failed) const;
+	void secondPass(vec2d &acc, vec2d &total, std::vector<int> &count, std::vector<bool> &cleared) const;
 	void drawImages(vec2d &acc, vec2d &total, std::vector<int> count, int confFrames, int &firstPassFail, int &secondPassFail) const;
 public:
     ImageProcessor();

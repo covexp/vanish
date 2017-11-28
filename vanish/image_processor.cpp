@@ -215,7 +215,7 @@ void ImageProcessor::printPixelInformation(int x, int y) const
     std::cout << std::endl;
 }
 
-void ImageProcessor::firstPass(vec2d &acc, vec2d &total, std::vector<int> &count)
+void ImageProcessor::firstPass(vec2d &acc, vec2d &total, std::vector<int> &count) const
 {
 	std::cout << std::endl << "1st pass:\t";
 
@@ -263,7 +263,7 @@ void ImageProcessor::firstPass(vec2d &acc, vec2d &total, std::vector<int> &count
 	}
 }
 
-void ImageProcessor::countFailed(vec2d &acc, std::vector<int> &count, std::vector<bool> &cleared, int confFrames, int &failed)
+void ImageProcessor::countFailed(vec2d &acc, std::vector<int> &count, std::vector<bool> &cleared, int confFrames, int &failed) const
 {
 	for(int i = 0; i < width; i++)
 	{
@@ -287,7 +287,7 @@ void ImageProcessor::countFailed(vec2d &acc, std::vector<int> &count, std::vecto
 	}
 }
 
-void ImageProcessor::secondPass(vec2d &acc, vec2d &total, std::vector<int> &count, std::vector<bool> &cleared)
+void ImageProcessor::secondPass(vec2d &acc, vec2d &total, std::vector<int> &count, std::vector<bool> &cleared) const
 {
 	std::cout << std::endl << "2nd pass:\t";
 
@@ -427,7 +427,7 @@ void ImageProcessor::drawImages(vec2d &acc, vec2d &total, std::vector<int> count
 }
 
 // Create final color image and a confidence mask, then display them
-void ImageProcessor::createFinal()
+void ImageProcessor::createFinal() const
 {
     int firstPassFail = 0;
     int secondPassFail = 0;
