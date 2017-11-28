@@ -194,7 +194,7 @@ void ImageProcessor::findBiggestBucket()
     }
 }
 
-void ImageProcessor::printPixelInformation(int x, int y)
+void ImageProcessor::printPixelInformation(int x, int y) const
 {
     int idx = x + y * width;
 
@@ -343,7 +343,7 @@ void ImageProcessor::secondPass(vec2d &acc, vec2d &total, std::vector<int> &coun
 	}
 }
 
-void ImageProcessor::drawImages(vec2d &acc, vec2d &total, std::vector<int> count, int confFrames, int &firstPassFail, int &secondPassFail)
+void ImageProcessor::drawImages(vec2d &acc, vec2d &total, std::vector<int> count, int confFrames, int &firstPassFail, int &secondPassFail) const
 {
 	// Paint the final result in a window
 	cimg::CImg<unsigned char> reconstructionImage(width, height, 1, 3, 0);

@@ -44,7 +44,7 @@ private:
     void inferParameters();
     void initializeData();
 
-    void printPixelInformation(int x, int y);
+	void printPixelInformation(int x, int y) const;
 	void printImageData() const;
 
 	void countBuckets();
@@ -55,7 +55,7 @@ private:
 	void firstPass(vec2d &acc, vec2d &total, std::vector<int> &count);
 	void countFailed(vec2d &acc, std::vector<int> &count, std::vector<bool> &cleared, int confFrames, int &failed);
 	void secondPass(vec2d &acc, vec2d &total, std::vector<int> &count, std::vector<bool> &cleared);
-	void drawImages(vec2d &acc, vec2d &total, std::vector<int> count, int confFrames, int &firstPassFail, int &secondPassFail);
+	void drawImages(vec2d &acc, vec2d &total, std::vector<int> count, int confFrames, int &firstPassFail, int &secondPassFail) const;
 public:
     ImageProcessor();
     ~ImageProcessor();
