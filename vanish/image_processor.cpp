@@ -51,7 +51,7 @@ void ImageProcessor::inferParameters()
 }
 
 // Print data about the image and the current settings
-void ImageProcessor::printImageData()
+void ImageProcessor::printImageData() const
 {
     std::cout << "Image data" << std::endl;
     std::cout << "\tFrames:\t\t" << frames << std::endl;

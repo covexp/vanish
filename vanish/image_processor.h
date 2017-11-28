@@ -45,7 +45,7 @@ private:
     void initializeData();
 
     void printPixelInformation(int x, int y);
-    void printImageData();
+	void printImageData() const;
 
 	void countBuckets();
 	void refineSolution();
