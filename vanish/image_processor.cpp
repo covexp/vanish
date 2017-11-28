@@ -19,11 +19,6 @@ ImageProcessor::ImageProcessor()
 
 ImageProcessor::~ImageProcessor()
 {
-    if(bucketData.size() > 0)
-    {
-        for(auto data : bucketData)
-            delete data;
-    }
 }
 
 // Set input file sequence
@@ -74,7 +69,7 @@ void ImageProcessor::printImageData()
 void ImageProcessor::initializeData()
 {
     for(int i = 0; i < channels; i++)
-		bucketData.push_back(new BucketData<unsigned char>(width, height, buckets));
+		bucketData.push_back(BucketData<unsigned char>(width, height, buckets));
 }
 
 // Set the size of a bucket in terms of color intensity values
@@ -145,10 +140,10 @@ void ImageProcessor::countBuckets()
                     int pixel = newImage(i, j, 0, channel);
 
                     int a_bucket = getABucket(pixel);
-                    bucketData[channel]->bucketA[i + j * width + a_bucket * size]++;
+					bucketData[channel].bucketA[i + j * width + a_bucket * size]++;
 
                     int b_bucket = getBBucket(pixel);
-                    bucketData[channel]->bucketB[i + j * width + b_bucket * size]++;
+					bucketData[channel].bucketB[i + j * width + b_bucket * size]++;
                 }
             }
         }
@@ -177,23 +172,23 @@ void ImageProcessor::findBiggestBucket()
 
                 for(int bucket = 0; bucket < buckets; bucket++)
                 {
-                    if(bucketData[channel]->bucketA[i + j * width + bucket * size] > maxCount)
+					if(bucketData[channel].bucketA[i + j * width + bucket * size] > maxCount)
                     {
-                        maxCount = bucketData[channel]->bucketA[i + j * width + bucket * size];
+						maxCount = bucketData[channel].bucketA[i + j * width + bucket * size];
                         maxBucket = bucket;
                         maxTypeA = true;
                     }
-                    if(bucketData[channel]->bucketB[i + j * width + bucket * size] > maxCount)
+					if(bucketData[channel].bucketB[i + j * width + bucket * size] > maxCount)
                     {
-                        maxCount = bucketData[channel]->bucketB[i + j * width + bucket * size];
+						maxCount = bucketData[channel].bucketB[i + j * width + bucket * size];
                         maxBucket = bucket;
                         maxTypeA = false;
                     }
                 }
 
-                bucketData[channel]->finalBucket[idx].id = maxBucket;
-                bucketData[channel]->finalBucket[idx].isABucket = maxTypeA;
-                bucketData[channel]->finalBucket[idx].diff = maxCount;
+				bucketData[channel].finalBucket[idx].id = maxBucket;
+				bucketData[channel].finalBucket[idx].isABucket = maxTypeA;
+				bucketData[channel].finalBucket[idx].diff = maxCount;
             }
         }
     }
@@ -208,13 +203,13 @@ void ImageProcessor::printPixelInformation(int x, int y)
     std::cout << std::endl << "\tA Buckets: ";
     for(int bucket = 0; bucket < buckets; bucket++)
     {
-        std::cout << (int) bucketData[0]->bucketA[idx + bucket * size] << " ";
+		std::cout << (int) bucketData[0].bucketA[idx + bucket * size] << " ";
     }
 
     std::cout << std::endl << "\tB Buckets: ";
     for(int bucket = 0; bucket < buckets; bucket++)
     {
-        std::cout << (int) bucketData[0]->bucketB[idx + bucket * size] << " ";
+		std::cout << (int) bucketData[0].bucketB[idx + bucket * size] << " ";
     }
 
     std::cout << std::endl;
@@ -243,7 +238,7 @@ void ImageProcessor::firstPass(vec2d &acc, vec2d &total, std::vector<int> &count
 
 					total[channel][idx] += pixel;
 
-					BucketEntry<unsigned char> entry = bucketData[channel]->finalBucket[idx];
+					BucketEntry<unsigned char> entry = bucketData[channel].finalBucket[idx];
 
 					if(entry.isABucket && entry.id != getABucket(pixel))
 						continue;
@@ -319,7 +314,7 @@ void ImageProcessor::secondPass(vec2d &acc, vec2d &total, std::vector<int> &coun
 
 				for(int channel = 0; channel < channels; channel++)
 				{
-					entry[channel] = bucketData[channel]->finalBucket[idx];
+					entry[channel] = bucketData[channel].finalBucket[idx];
 					pixel[channel] = newImage(i, j, 0, channel);
 
 					if(entry[channel].diff > maxDiff)
