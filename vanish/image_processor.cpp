@@ -1,5 +1,6 @@
 // ImageProcessor
 // Class to handle the processing of the image sequence
+#include <omp.h>
 
 #include "image_processor.h"
 
@@ -131,6 +132,7 @@ void ImageProcessor::countBuckets()
 
         std::cout << "|" << std::flush;
 
+#pragma omp parallel for
         for (int i = 0; i < width; i++)
         {
             for (int j = 0; j < height; j++)
@@ -157,6 +159,7 @@ void ImageProcessor::findBiggestBucket()
 {
     std::cout << std::endl << "Finding the biggest bucket..." << std::flush;
 
+#pragma omp parallel for
     // Find the biggest bucket
     for (int i = 0; i < width; i++)
     {
@@ -225,6 +228,7 @@ void ImageProcessor::firstPass(vec2d &acc, vec2d &total, std::vector<int> &count
 
 		std::cout << "|" << std::flush;
 
+#pragma omp parallel for
 		for (int i = 0; i < width; i++)
 		{
 			for (int j = 0; j < height; j++)
@@ -265,6 +269,7 @@ void ImageProcessor::firstPass(vec2d &acc, vec2d &total, std::vector<int> &count
 
 void ImageProcessor::countFailed(vec2d &acc, std::vector<int> &count, std::vector<bool> &cleared, int confFrames, int &failed) const
 {
+#pragma omp parallel for
 	for(int i = 0; i < width; i++)
 	{
 		for(int j = 0; j < height; j++)
@@ -297,6 +302,7 @@ void ImageProcessor::secondPass(vec2d &acc, vec2d &total, std::vector<int> &coun
 
 		std::cout << "|" << std::flush;
 
+#pragma omp parallel for
 		for(int i = 0; i < width; i++)
 		{
 			for(int j = 0; j < height; j++)
