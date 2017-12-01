@@ -361,6 +361,7 @@ void ImageProcessor::drawImages(vec2d &acc, vec2d &total, std::vector<int> count
 
 	for (int i = 0; i < width; i++)
 	{
+#pragma omp parallel for
 		for (int j = 0; j < height; j++)
 		{
 			int idx = i + j * width;
