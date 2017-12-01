@@ -428,7 +428,6 @@ void ImageProcessor::drawImages(vec2d &acc, vec2d &total, std::vector<int> count
 			{
 				printPixelInformation(x, y);
 			}
-
 		}
 	}
 }
