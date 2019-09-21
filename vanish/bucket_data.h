@@ -6,30 +6,26 @@
 #include <vector>
 
 template <typename T>
-struct BucketEntry
-{
-	T id;
-	bool isABucket;
-	short int diff;
+struct BucketEntry {
+    T id;
+    bool isABucket;
+    short int diff;
 };
 
 template <class T>
-class BucketData
-{
+class BucketData {
 private:
-
 public:
-	BucketData(int width, int height, int buckets)
-		: bucketA(width* height* buckets),
-		bucketB(width* height* buckets),
-		finalBucket(width* height)
-	{}
+    BucketData(int width, int height, int buckets)
+        : bucketA(width * height * buckets)
+        , bucketB(width * height * buckets)
+        , finalBucket(width * height)
+    {
+    }
 
-	~BucketData()
-	{}
+    ~BucketData() {}
 
-	std::vector<T> bucketA;
-	std::vector<T> bucketB;
-	std::vector<BucketEntry<T>> finalBucket;
+    std::vector<T> bucketA;
+    std::vector<T> bucketB;
+    std::vector<BucketEntry<T>> finalBucket;
 };
-
