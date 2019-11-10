@@ -1,14 +1,18 @@
 # vanish
 
-*Remove transient objects from an image sequence*
+Remove transient objects from an image sequence.
 
 ## Objective
 
 *vanish* can be used to generate a single frame from an image sequence, where transient foreground objects (such as passerby, moving cars, flying birds, etc.) are removed and only the stable background is retained.
 
-Input: image sequence with a stable background and moving foreground objects
+***Input***
 
-Output: single image of the background with transient details removed
+Image sequence with a stable background and moving foreground objects.
+
+***Output***
+
+Single image of the background with transient details removed.
 
 ![image sequence](http://covex.info/images/east_imperial_anim.gif)
 
@@ -19,6 +23,8 @@ The processing works on a pixel-by-pixel basis by classifying pixels in each inp
 Bucketing is used because small movements, lighting variations and sensor noise cause minor variations in intensity at any given pixel even in stationary features. In places where pixel intensities cluster around a bucket boundary, there is an issue with the entries potentially being split across two buckets. Adding an extra set of buckets, offset by half the bucket size, takes care of this splitting problem.
 
 ## Compatibiltity
+
+Tested on Windows and Linux.
 
 Using C++17.
 
