@@ -4,7 +4,7 @@ Remove transient objects from an image sequence.
 
 ## Objective
 
-*vanish* can be used to generate a single frame from an image sequence, where transient foreground objects (such as passerby, moving cars, flying birds, etc.) are removed and only the stable background is retained.
+*vanish* can be used to generate a single frame from an image sequence, where transient foreground objects (such as pedestrians, moving cars, flying birds, etc.) are removed and only the stable background is retained.
 
 ***Input***
 
@@ -50,6 +50,6 @@ Usage:
       --conf arg     confidence level [0.0, 1.0] (default: 0.200000)
 </pre>
 
-## Improvements
+## TODO
 
 Currently *vanish* doesn't do any processing to correct misaligned frames in the sequence, and relies on either a stable photography process, or a separate preprocessing pass using softare such as *align_image_stack* from the [Hugin Project](http://hugin.sourceforge.net/download/).
