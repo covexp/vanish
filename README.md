@@ -52,4 +52,4 @@ Usage:
 
 ## TODO
 
-Currently *vanish* doesn't do any processing to correct misaligned frames in the sequence, and relies on either a stable photography process, or a separate preprocessing pass using softare such as *align_image_stack* from the [Hugin Project](http://hugin.sourceforge.net/download/).
+Currently *vanish* doesn't do any processing to correct misaligned frames in the sequence, and relies on either a stable photography process, or a separate preprocessing pass using software such as *align_image_stack* from the [Hugin Project](http://hugin.sourceforge.net/download/).
