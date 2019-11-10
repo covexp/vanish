@@ -1,85 +1,101 @@
 // Vanish
 // Remove transient objects from an image sequence
 
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/path.hpp>
-#include <boost/program_options.hpp>
 #include <iostream>
 #include <string>
 #include <vector>
+#include <filesystem>
 
+#include <cxxopts.hpp>
+
+#define cimg_use_tiff
 #include <CImg.h>
 
 #include "image_processor.h"
 
-namespace opt = boost::program_options;
-namespace fs = boost::filesystem;
-namespace cimg = cimg_library;
+namespace
+{
+    const std::string kDefaultDirectory = "./input/";
+    const int kDefaultBucketSize = 8;
+    const int kDefaultBitDepth = 8;
+    const float kDefaultConfidenceLevel = 0.2f;
 
-const std::string DEFAULT_DIRECTORY = "./input/";
-const int DEFAULT_BUCKETSIZE = 8;
-const int DEFAULT_BITDEPTH = 8;
+    const std::string kCmdHelp = "help";
+    const std::string kCmdDirectory = "dir";
+    const std::string kCmdType = "type";
+    const std::string kCmdBucket = "bucket";
+    const std::string kCmdDepth = "depth";
+    const std::string kCmdSamples = "samples";
+    const std::string kCmdConfidence = "conf";
+}
 
 int main(int argc, char* argv[])
 {
-    // Welcome message
-    std::cout << "Vanish - Version 0.05 Alpha" << std::endl
-              << std::endl;
+    std::cout << "Vanish - Version 0.06 Alpha" << std::endl << std::endl;
 
-    // Command line options
-    opt::options_description desc("Allowed options");
-    desc.add_options()("help", "show help message")(
-        "dir", opt::value<std::string>()->default_value(DEFAULT_DIRECTORY),
-        "directory of input image sequence")(
-        "type", opt::value<std::string>()->default_value("png"),
-        "file extension")("bucket",
-        opt::value<int>()->default_value(DEFAULT_BUCKETSIZE),
-        "bucket size")(
-        "depth", opt::value<int>()->default_value(DEFAULT_BITDEPTH),
-        "channel bit depth")("refine", opt::value<int>()->default_value(0),
-        "number of refinement steps")(
-        "samples", opt::value<int>()->default_value(64),
-        "number of samples for bad frame detection")(
-        "conf", opt::value<float>()->default_value(0.25f), "confidence level");
+    // Handle command line parameters
+    cxxopts::Options options("Vanish", "Remove transient details from an image sequence.");
+    options.add_options("default")
+        (kCmdHelp, "show help message")
+        (kCmdDirectory, "directory of input image sequence", cxxopts::value<std::string>())
+        (kCmdType, "file extension", cxxopts::value<std::string>())
+        (kCmdBucket, "bucket size", cxxopts::value<int>()->default_value(std::to_string(kDefaultBucketSize)))
+        (kCmdDepth, "channel bit depth", cxxopts::value<int>())
+        (kCmdSamples, "number of samples for bad frame detection", cxxopts::value<int>())
+        (kCmdConfidence, "confidence level [0.0, 1.0]", cxxopts::value<float>()->default_value(std::to_string(kDefaultConfidenceLevel)));
 
-    opt::variables_map vm;
+    auto arguments = options.parse(argc, argv);
 
-    try {
-        opt::store(opt::parse_command_line(argc, argv, desc), vm);
-        opt::notify(vm);
-    } catch (const std::exception& e) {
-        std::cerr << "Invalid command line parameter. Exiting." << std::endl;
-        return 1;
+    if (arguments.count(kCmdDirectory) != 1)
+    {
+        std::cout << "Invalid command line arguments - Directory not specified." << std::endl;
+        std::cout << options.help() << std::endl;
+        return EXIT_FAILURE;
     }
 
-    if (vm.count("help")) {
-        std::cout << desc << std::endl;
-        return 1;
+    if (arguments.count(kCmdType) != 1)
+    {
+        std::cout << "Invalid command line arguments - File type extension not specified." << std::endl;
+        std::cout << options.help() << std::endl;
+        return EXIT_FAILURE;
     }
 
-    std::string inputDirectory = vm["dir"].as<std::string>();
-    std::string fileExtension = vm["type"].as<std::string>();
-    int bucketSize = vm["bucket"].as<int>();
-    float confLevel = vm["conf"].as<float>();
+    std::string inputDirectory = arguments[kCmdDirectory].as<std::string>();
+    std::string fileExtension = arguments[kCmdType].as<std::string>();
+
+    int bucketSize = kDefaultBucketSize;
+    if(arguments.count(kCmdBucket) == 1)
+    {
+        bucketSize = std::stoi(arguments[kCmdBucket].as<std::string>());
+    }
+
+    int bitDepth = kDefaultBitDepth;
+    if(arguments.count(kCmdDepth) == 1)
+    {
+        bitDepth = std::stoi(arguments[kCmdDepth].as<std::string>());
+    }
+
+    float confLevel = kDefaultConfidenceLevel;
+    if(arguments.count(kCmdConfidence) == 1)
+    {
+        confLevel = std::stof(arguments[kCmdConfidence].as<std::string>());
+    }
 
     // Find image files
-    fs::path imagePath(fs::initial_path());
-    //	imagePath = fs::system_complete(fs::path(inputDirectory, fs::native));
-    imagePath = fs::system_complete(fs::path(inputDirectory));
+    std::vector<std::string> fileNames;
+    std::filesystem::path imagePath(inputDirectory);
 
     // Check that directory exists
-    if (!fs::exists(imagePath)) {
-        std::cerr << "Directory " << inputDirectory << " not found! Terminating."
-                  << std::endl;
-        exit(EXIT_FAILURE);
+    if (!std::filesystem::exists(imagePath))
+    {
+        std::cerr << "Directory " << inputDirectory << " not found! Terminating." << std::endl;
+        return EXIT_FAILURE;
     }
 
-    std::vector<std::string> fileNames;
-
-    fs::directory_iterator endItr;
-    if (fs::is_directory(imagePath)) {
-        for (fs::directory_iterator itr(imagePath); itr != endItr; ++itr) {
-            if (fs::is_regular_file(*itr)) {
+    std::filesystem::directory_iterator endItr;
+    if (std::filesystem::is_directory(imagePath)) {
+        for (std::filesystem::directory_iterator itr(imagePath); itr != endItr; ++itr) {
+            if (std::filesystem::is_regular_file(*itr)) {
                 if (itr->path().extension() == std::string(".") + fileExtension) {
                     fileNames.push_back(itr->path().string());
                 }
@@ -87,17 +103,22 @@ int main(int argc, char* argv[])
         }
     }
 
+    for(auto fileName : fileNames)
+    {
+        std::cout << fileName << std::endl;
+    }
+
     // Check that enough image files were found
     if (fileNames.size() < 2) {
         std::cerr << "Not enough files found in directory " << inputDirectory
-                  << "! Terminating." << std::endl;
+            << "! Terminating." << std::endl;
         exit(EXIT_FAILURE);
     }
 
     // Check the bucket size
     if (bucketSize < 1 || bucketSize > 128) {
         std::cerr << "Invalid bucket size. Using default value." << std::endl;
-        bucketSize = DEFAULT_BUCKETSIZE;
+        bucketSize = kDefaultBucketSize;
     }
 
     // Set up the parameters for the image processor

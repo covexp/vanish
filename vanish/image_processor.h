@@ -47,7 +47,6 @@ private:
     void printImageData() const;
 
     void countBuckets();
-    void refineSolution();
     void findBiggestBucket();
     void createFinal() const;
 

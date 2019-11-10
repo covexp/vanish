@@ -56,7 +56,7 @@ void ImageProcessor::printImageData() const
     std::cout << "\tWidth:\t\t" << width << std::endl;
     std::cout << "\tHeight:\t\t" << height << std::endl;
     std::cout << "\tChannels:\t" << channels << std::endl
-              << std::endl;
+        << std::endl;
 
     std::cout << "Settings" << std::endl;
     std::cout << "\tBuckets:\t" << buckets << std::endl;
@@ -119,7 +119,7 @@ void ImageProcessor::processSequence()
 void ImageProcessor::countBuckets()
 {
     std::cout << std::endl
-              << "Reading:\t";
+        << "Reading:\t";
 
     // Read image frames and count the buckets
     for (auto& file : fileNames) {
@@ -144,14 +144,14 @@ void ImageProcessor::countBuckets()
     }
 
     std::cout << std::endl
-              << "Finished reading files...";
+        << "Finished reading files...";
 }
 
 // Find the biggest bucket for each pixel
 void ImageProcessor::findBiggestBucket()
 {
     std::cout << std::endl
-              << "Finding the biggest bucket..." << std::flush;
+        << "Finding the biggest bucket..." << std::flush;
 
 #pragma omp parallel for
     // Find the biggest bucket
@@ -190,16 +190,16 @@ void ImageProcessor::printPixelInformation(int x, int y) const
     int idx = x + y * width;
 
     std::cout << std::endl
-              << "Pixel information for " << x << ", " << y << std::endl;
+        << "Pixel information for " << x << ", " << y << std::endl;
 
     std::cout << std::endl
-              << "\tA Buckets: ";
+        << "\tA Buckets: ";
     for (int bucket = 0; bucket < buckets; bucket++) {
         std::cout << (int)bucketData[0].bucketA[idx + bucket * size] << " ";
     }
 
     std::cout << std::endl
-              << "\tB Buckets: ";
+        << "\tB Buckets: ";
     for (int bucket = 0; bucket < buckets; bucket++) {
         std::cout << (int)bucketData[0].bucketB[idx + bucket * size] << " ";
     }
@@ -211,7 +211,7 @@ void ImageProcessor::firstPass(vec2d& acc, vec2d& total,
     std::vector<int>& count) const
 {
     std::cout << std::endl
-              << "1st pass:\t";
+        << "1st pass:\t";
 
     for (auto& file : fileNames) {
         cimg::CImg<unsigned char> newImage(file.c_str());
@@ -268,7 +268,8 @@ void ImageProcessor::countFailed(vec2d& acc, std::vector<int>& count,
                 for (int channel = 0; channel < channels; channel++) {
                     acc[channel][idx] = 0.0f;
                 }
-            } else
+            }
+            else
                 cleared[idx] = true;
         }
     }
@@ -279,7 +280,7 @@ void ImageProcessor::secondPass(vec2d& acc, vec2d& total,
     std::vector<bool>& cleared) const
 {
     std::cout << std::endl
-              << "2nd pass:\t";
+        << "2nd pass:\t";
 
     for (auto& file : fileNames) {
         cimg::CImg<unsigned char> newImage(file.c_str());
@@ -387,11 +388,11 @@ void ImageProcessor::drawImages(vec2d& acc, vec2d& total,
 
     std::cout << std::endl;
     std::cout << std::endl
-              << "Processing finished." << std::endl;
+        << "Processing finished." << std::endl;
     std::cout << std::endl
-              << "1st pass failed pixels: " << firstPassFail;
+        << "1st pass failed pixels: " << firstPassFail;
     std::cout << std::endl
-              << "2nd pass failed pixels: " << secondPassFail << std::endl;
+        << "2nd pass failed pixels: " << secondPassFail << std::endl;
 
     std::cout << std::endl;
 

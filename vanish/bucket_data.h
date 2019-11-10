@@ -17,9 +17,9 @@ class BucketData {
 private:
 public:
     BucketData(int width, int height, int buckets)
-        : bucketA(width * height * buckets)
-        , bucketB(width * height * buckets)
-        , finalBucket(width * height)
+        : bucketA(width* height* buckets)
+        , bucketB(width* height* buckets)
+        , finalBucket(width* height)
     {
     }
 
