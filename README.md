@@ -16,6 +16,10 @@ The processing works on a pixel-by-pixel basis by classifying pixels in each inp
 
 Bucketing is used because small movements, lighting variations and sensor noise cause minor variations in intensity at any given pixel even in stationary features. In places where pixel intensities cluster around a bucket boundary, there is an issue with the entries potentially being split across two buckets. Adding an extra set of buckets, offset by half the bucket size, takes care of this splitting problem.
 
+## Compatibiltity
+
+Using C++17.
+
 ## Dependencies
 
 CImg (http://cimg.eu/)
