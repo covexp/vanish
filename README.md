@@ -20,21 +20,20 @@ Bucketing is used because small movements, lighting variations and sensor noise 
 
 CImg (http://cimg.eu/)
 
-Boost (http://www.boost.org/)
+cxxopts (https://github.com/jarro2783/cxxopts)
 
 ## Usage
 
 <pre>
-vanish [options]
+Usage:
+  Vanish [OPTION...]
 
-Allowed options:
-  --help                show help message
-  --dir arg (=./input/) directory of input image sequence
-  --type arg (=png)     file extension
-  --bucket arg (=8)     bucket size
-  --depth arg (=8)      channel bit depth
-  --refine arg (=0)     number of refinement steps
-  --samples arg (=64)   number of samples for bad frame detection
-
-Example:  vanish --dir east_imperial/ --type tif --bucket 16
+ default options:
+      --help         show help message
+      --dir arg      directory of input image sequence
+      --type arg     file extension
+      --bucket arg   bucket size (default: 8)
+      --depth arg    channel bit depth
+      --samples arg  number of samples for bad frame detection
+      --conf arg     confidence level [0.0, 1.0] (default: 0.200000)
 </pre>
