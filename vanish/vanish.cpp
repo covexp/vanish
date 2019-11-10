@@ -90,30 +90,30 @@ int main(int argc, char* argv[])
     }
 
     std::filesystem::directory_iterator endItr;
-    if (std::filesystem::is_directory(imagePath)) {
-        for (std::filesystem::directory_iterator itr(imagePath); itr != endItr; ++itr) {
-            if (std::filesystem::is_regular_file(*itr)) {
-                if (itr->path().extension() == std::string(".") + fileExtension) {
+    if (std::filesystem::is_directory(imagePath)) 
+    {
+        for (std::filesystem::directory_iterator itr(imagePath); itr != endItr; ++itr) 
+        {
+            if (std::filesystem::is_regular_file(*itr)) 
+            {
+                if (itr->path().extension() == std::string(".") + fileExtension) 
+                {
                     fileNames.push_back(itr->path().string());
                 }
             }
         }
     }
 
-    for(auto fileName : fileNames)
-    {
-        std::cout << fileName << std::endl;
-    }
-
     // Check that enough image files were found
-    if (fileNames.size() < 2) {
-        std::cerr << "Not enough files found in directory " << inputDirectory
-            << "! Terminating." << std::endl;
+    if (fileNames.size() < 2) 
+    {
+        std::cerr << "Not enough files found in directory " << inputDirectory << "! Terminating." << std::endl;
         exit(EXIT_FAILURE);
     }
 
     // Check the bucket size
-    if (bucketSize < 1 || bucketSize > 128) {
+    if (bucketSize < 1 || bucketSize > 128) 
+    {
         std::cerr << "Invalid bucket size. Using default value." << std::endl;
         bucketSize = kDefaultBucketSize;
     }
@@ -127,5 +127,5 @@ int main(int argc, char* argv[])
     // Process the specified image sequence
     processor.processSequence();
 
-    return 0;
+    return EXIT_SUCCESS;
 }

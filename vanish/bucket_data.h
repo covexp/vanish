@@ -8,18 +8,17 @@
 template <typename T>
 struct BucketEntry {
     T id;
-    bool isABucket;
-    short int diff;
+    bool isABucket = false;
+    int diff = 0;
 };
 
 template <class T>
 class BucketData {
-private:
 public:
     BucketData(int width, int height, int buckets)
-        : bucketA(width* height* buckets)
-        , bucketB(width* height* buckets)
-        , finalBucket(width* height)
+        : bucketA(width * height * buckets)
+        , bucketB(width * height * buckets)
+        , finalBucket(width * height)
     {
     }
 
