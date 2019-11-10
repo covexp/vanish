@@ -2,6 +2,8 @@
 // Class to handle the processing of the image sequence
 #include <omp.h>
 
+#include <CImg.h>
+
 #include "image_processor.h"
 
 ImageProcessor::ImageProcessor()
@@ -39,7 +41,7 @@ void ImageProcessor::inferParameters()
 
     frames = fileNames.size();
 
-    cimg::CImg<unsigned char> inspectImage(fileNames[0].c_str());
+    cimg_library::CImg<unsigned char> inspectImage(fileNames[0].c_str());
     width = inspectImage.width();
     height = inspectImage.height();
     size = width * height;
@@ -118,12 +120,11 @@ void ImageProcessor::processSequence()
 // Read the image files and count the pixel values into buckets
 void ImageProcessor::countBuckets()
 {
-    std::cout << std::endl
-        << "Reading:\t";
+    std::cout << std::endl << "Reading:\t";
 
     // Read image frames and count the buckets
     for (auto& file : fileNames) {
-        cimg::CImg<unsigned char> newImage(file.c_str());
+        cimg_library::CImg<unsigned char> newImage(file.c_str());
 
         std::cout << "|" << std::flush;
 
@@ -143,15 +144,13 @@ void ImageProcessor::countBuckets()
         }
     }
 
-    std::cout << std::endl
-        << "Finished reading files...";
+    std::cout << std::endl << "Finished reading files...";
 }
 
 // Find the biggest bucket for each pixel
 void ImageProcessor::findBiggestBucket()
 {
-    std::cout << std::endl
-        << "Finding the biggest bucket..." << std::flush;
+    std::cout << std::endl << "Finding the biggest bucket..." << std::flush;
 
 #pragma omp parallel for
     // Find the biggest bucket
@@ -214,7 +213,7 @@ void ImageProcessor::firstPass(vec2d& acc, vec2d& total,
         << "1st pass:\t";
 
     for (auto& file : fileNames) {
-        cimg::CImg<unsigned char> newImage(file.c_str());
+        cimg_library::CImg<unsigned char> newImage(file.c_str());
 
         std::cout << "|" << std::flush;
 
@@ -283,7 +282,7 @@ void ImageProcessor::secondPass(vec2d& acc, vec2d& total,
         << "2nd pass:\t";
 
     for (auto& file : fileNames) {
-        cimg::CImg<unsigned char> newImage(file.c_str());
+        cimg_library::CImg<unsigned char> newImage(file.c_str());
 
         std::cout << "|" << std::flush;
 
@@ -334,12 +333,12 @@ void ImageProcessor::drawImages(vec2d& acc, vec2d& total,
     int& firstPassFail, int& secondPassFail) const
 {
     // Paint the final result in a window
-    cimg::CImg<unsigned char> reconstructionImage(width, height, 1, 3, 0);
-    cimg::CImgDisplay mainDisp(width, height, "Reconstructed background");
+    cimg_library::CImg<unsigned char> reconstructionImage(width, height, 1, 3, 0);
+    cimg_library::CImgDisplay mainDisp(width, height, "Reconstructed background");
 
     // Paint the confidence mask
-    cimg::CImg<unsigned char> confidenceImage(width, height, 1, 3, 0);
-    cimg::CImgDisplay auxDisp(width, height, "Confidence mask");
+    cimg_library::CImg<unsigned char> confidenceImage(width, height, 1, 3, 0);
+    cimg_library::CImgDisplay auxDisp(width, height, "Confidence mask");
 
     for (int i = 0; i < width; i++) {
 #pragma omp parallel for

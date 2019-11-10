@@ -8,9 +8,6 @@
 
 #include <cxxopts.hpp>
 
-#define cimg_use_tiff
-#include <CImg.h>
-
 #include "image_processor.h"
 
 namespace

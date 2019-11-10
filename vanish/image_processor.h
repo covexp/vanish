@@ -13,25 +13,32 @@
 
 #include "bucket_data.h"
 
-namespace cimg = cimg_library;
-
-typedef std::vector<std::vector<float>> vec2d;
-
 class ImageProcessor {
+public:
+    ImageProcessor();
+    ~ImageProcessor();
+
+    void setFiles(const std::vector<std::string>& fn);
+    void setBucketSize(int newSize);
+    void setConfidenceLevel(float newConf);
+    void processSequence();
+
 private:
-    int frames;
-    int width;
-    int height;
-    int size;
-    int channels;
-    int depth;
+    using vec2d = std::vector<std::vector<float>>;
 
-    int minVal;
-    int maxVal;
-    int bucketSize;
-    int buckets;
+    int frames = 0;
+    int width = 0;
+    int height = 0;
+    int size = 0;
+    int channels = 0;
+    int depth = 0;
 
-    float confLevel;
+    int minVal = 0;
+    int maxVal = 0;
+    int bucketSize = 0;
+    int buckets = 0;
+
+    float confLevel = 0.0f;
 
     std::vector<BucketData<unsigned char>> bucketData;
 
@@ -59,13 +66,4 @@ private:
     void drawImages(vec2d& acc, vec2d& total, std::vector<int> count,
         int confFrames, int& firstPassFail,
         int& secondPassFail) const;
-
-public:
-    ImageProcessor();
-    ~ImageProcessor();
-
-    void setFiles(const std::vector<std::string>& fn);
-    void setBucketSize(int newSize);
-    void setConfidenceLevel(float newConf);
-    void processSequence();
 };
