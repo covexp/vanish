@@ -15,6 +15,7 @@ public:
 
     void setFiles(const std::vector<std::string>& fn);
     void setBucketSize(int newSize);
+    void setBitDepth(int newDepth);
     void setConfidenceLevel(float newConf);
     void processSequence();
 
@@ -36,24 +37,30 @@ private:
 
     void countBuckets();
     void findBiggestBucket();
-    void createFinal() const;
+    void createFinal();
 
-    void firstPass(vec2d& acc, vec2d& total, std::vector<int>& count) const;
-    void countFailed(vec2d& acc, std::vector<int>& count, std::vector<bool>& cleared, int confFrames, int& failed) const;
-    void secondPass(vec2d& acc, std::vector<int>& count, std::vector<bool>& cleared) const;
-    void drawImages(vec2d& acc, vec2d& total, std::vector<int> count, int confFrames, int& firstPassFail, int& secondPassFail) const;
+    void firstPass();
+    void countFailed(int confFrames, int& failed);
+    void secondPass();
+    void drawImages(int confFrames, int& firstPassFail, int& secondPassFail);
 
-    int frames = 0;
-    int width = 0;
-    int height = 0;
-    int size = 0;
-    int channels = 0;
-    int depth = 0;
+    int _frames = 0;
+    int _width = 0;
+    int _height = 0;
+    int _size = 0;
+    int _channels = 0;
+    int _depth = 0;
 
-    int minVal = 0;
-    int maxVal = 0;
-    int bucketSize = 0;
-    int buckets = 0;
+    int _minVal = 0;
+    int _maxVal = 0;
+    int _bucketSize = 0;
+    int _buckets = 0;
+    int _bitDepth = 0;
 
-    float confLevel = 0.0f;
+    float _confLevel = 0.0f;
+
+    std::vector<std::vector<float>> _acc;
+    std::vector<std::vector<float>> _total;
+    std::vector<int> _count;
+    std::vector<bool> _cleared;
 };

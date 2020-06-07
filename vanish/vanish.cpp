@@ -1,22 +1,20 @@
 // Vanish
 // Remove transient objects from an image sequence
 
+#pragma warning( push )
+#pragma warning ( disable : ALL_CODE_ANALYSIS_WARNINGS )
 #include <iostream>
 #include <string>
 #include <vector>
 #include <filesystem>
-
 #include <cxxopts.hpp>
+#pragma warning( pop )
 
 #include "image_processor.h"
 
 namespace
 {
     const std::string kDefaultDirectory = "./input/";
-    const int kDefaultBucketSize = 8;
-    const int kDefaultBitDepth = 8;
-    const float kDefaultConfidenceLevel = 0.2f;
-
     const std::string kCmdHelp = "help";
     const std::string kCmdDirectory = "dir";
     const std::string kCmdType = "type";
@@ -24,6 +22,9 @@ namespace
     const std::string kCmdDepth = "depth";
     const std::string kCmdSamples = "samples";
     const std::string kCmdConfidence = "conf";
+    const int kDefaultBucketSize = 8;
+    const int kDefaultBitDepth = 8;
+    const float kDefaultConfidenceLevel = 0.2f;
 }
 
 int main(int argc, char* argv[])
@@ -121,6 +122,7 @@ int main(int argc, char* argv[])
     // Set up the parameters for the image processor
     ImageProcessor processor;
     processor.setBucketSize(bucketSize);
+    processor.setBitDepth(bitDepth);
     processor.setConfidenceLevel(confLevel);
     processor.setFiles(fileNames);
 

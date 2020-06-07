@@ -2,9 +2,12 @@
 // Class to handle the processing of the image sequence
 #include "image_processor.h"
 
+#pragma warning( push )
+#pragma warning ( disable : ALL_CODE_ANALYSIS_WARNINGS )
 #include <iostream>
 #include <omp.h>
 #include <CImg.h>
+#pragma warning( pop )
 
 namespace
 {
@@ -16,16 +19,19 @@ namespace
 
 ImageProcessor::ImageProcessor()
 {
-    width = kDefaultWidth;
-    height = kDefaultHeight;
-    size = width * height;
+    _width = kDefaultWidth;
+    _height = kDefaultHeight;
+    _size = _width * _height;
 
-    minVal = 0;
-    maxVal = kMaxBrightnessValue;
-    bucketSize = 8;
-    buckets = (maxVal + 1) / bucketSize;
+    _count.resize(_size);
+    _cleared.resize(_size);
 
-    confLevel = kDefaultConfidenceLevel;
+    _minVal = 0;
+    _maxVal = kMaxBrightnessValue;
+    _bucketSize = 8;
+    _buckets = (_maxVal + 1) / _bucketSize;
+
+    _confLevel = kDefaultConfidenceLevel;
 }
 
 ImageProcessor::~ImageProcessor() 
@@ -50,13 +56,16 @@ void ImageProcessor::inferParameters()
         exit(EXIT_FAILURE);
     }
 
-    frames = static_cast<int>(fileNames.size());
+    _frames = static_cast<int>(fileNames.size());
 
     cimg_library::CImg<unsigned char> inspectImage(fileNames[0].c_str());
-    width = inspectImage.width();
-    height = inspectImage.height();
-    size = width * height;
-    channels = inspectImage.spectrum();
+    _width = inspectImage.width();
+    _height = inspectImage.height();
+    _size = _width * _height;
+    _channels = inspectImage.spectrum();
+
+    _count.resize(_size);
+    _cleared.resize(_size);
 
     printImageData();
 }
@@ -65,71 +74,76 @@ void ImageProcessor::inferParameters()
 void ImageProcessor::printImageData() const
 {
     std::cout << "Image data" << std::endl;
-    std::cout << "\tFrames:\t\t" << frames << std::endl;
-    std::cout << "\tWidth:\t\t" << width << std::endl;
-    std::cout << "\tHeight:\t\t" << height << std::endl;
-    std::cout << "\tChannels:\t" << channels << std::endl << std::endl;
+    std::cout << "\tFrames:\t\t" << _frames << std::endl;
+    std::cout << "\tWidth:\t\t" << _width << std::endl;
+    std::cout << "\tHeight:\t\t" << _height << std::endl;
+    std::cout << "\tChannels:\t" << _channels << std::endl << std::endl;
 
     std::cout << "Settings" << std::endl;
-    std::cout << "\tBuckets:\t" << buckets << std::endl;
-    std::cout << "\tBucket size:\t" << bucketSize << std::endl;
-    std::cout << "\tConfidence:\t" << confLevel << std::endl;
+    std::cout << "\tBuckets:\t" << _buckets << std::endl;
+    std::cout << "\tBucket size:\t" << _bucketSize << std::endl;
+    std::cout << "\tConfidence:\t" << _confLevel << std::endl;
 }
 
 // Set up the data structure to store bucket information
 void ImageProcessor::initializeData()
 {
-    for (int i = 0; i < channels; i++)
+    for (int i = 0; i < _channels; i++)
     {
-        bucketData.push_back(BucketData<BucketType>(width, height, buckets));
+        bucketData.push_back(BucketData<BucketType>(_width, _height, _buckets));
     }
 }
 
 // Set the size of a bucket in terms of color intensity values
 void ImageProcessor::setBucketSize(int newSize)
 {
-    bucketSize = newSize;
-    buckets = (maxVal + 1) / bucketSize;
+    _bucketSize = newSize;
+    _buckets = (_maxVal + 1) / _bucketSize;
+}
+
+void ImageProcessor::setBitDepth(int newDepth)
+{
+    _bitDepth = newDepth;
 }
 
 // Set the confidence level as bucket hits / framecount
 void ImageProcessor::setConfidenceLevel(float newConf) 
 {
-    confLevel = newConf;
+    _confLevel = newConf;
 }
 
 // Find the correspoding A Bucket for the color intensity value
 int ImageProcessor::getABucket(int value) const
 {
-    if (value < minVal)
+    if (value < _minVal)
     {
         return 0;
     }
 
-    if (value > maxVal)
+    if (value > _maxVal)
     {
-        return buckets - 1;
+        return _buckets - 1;
     }
 
-    return value / bucketSize;
+    return value / _bucketSize;
 }
 
 // Find the corresponding B Bucket for the color intensity value
 int ImageProcessor::getBBucket(int value) const
 {
-    value += bucketSize / 2;
+    value += _bucketSize / 2;
 
-    if (value < minVal)
+    if (value < _minVal)
     {
         return 0;
     }
 
-    if (value > maxVal - bucketSize / 2)
+    if (value > _maxVal - _bucketSize / 2)
     {
-        return buckets - 1;
+        return _buckets - 1;
     }
 
-    return value / bucketSize;
+    return value / _bucketSize;
 }
 
 // Process the image sequence and create final output
@@ -153,19 +167,19 @@ void ImageProcessor::countBuckets()
         std::cout << "|" << std::flush;
 
 #pragma omp parallel for
-        for (int i = 0; i < width; i++) 
+        for (int i = 0; i < _width; i++) 
         {
-            for (int j = 0; j < height; j++) 
+            for (int j = 0; j < _height; j++) 
             {
-                for (int channel = 0; channel < channels; channel++) 
+                for (int channel = 0; channel < _channels; channel++) 
                 {
                     int pixel = newImage(i, j, 0, channel);
 
                     int a_bucket = getABucket(pixel);
-                    bucketData[channel].bucketA[i + j * width + a_bucket * size]++;
+                    bucketData[channel].bucketA[i + j * _width + a_bucket * _size]++;
 
                     int b_bucket = getBBucket(pixel);
-                    bucketData[channel].bucketB[i + j * width + b_bucket * size]++;
+                    bucketData[channel].bucketB[i + j * _width + b_bucket * _size]++;
                 }
             }
         }
@@ -181,29 +195,29 @@ void ImageProcessor::findBiggestBucket()
 
 #pragma omp parallel for
     // Find the biggest bucket
-    for (int i = 0; i < width; i++) 
+    for (int i = 0; i < _width; i++) 
     {
-        for (int j = 0; j < height; j++) 
+        for (int j = 0; j < _height; j++) 
         {
-            int idx = i + j * width;
+            int idx = i + j * _width;
 
-            for (int channel = 0; channel < channels; channel++) 
+            for (int channel = 0; channel < _channels; channel++) 
             {
                 int maxCount = 0;
                 BucketType maxBucket = 0;
                 bool maxTypeA = true;
 
-                for (int bucket = 0; bucket < buckets; bucket++) 
+                for (int bucket = 0; bucket < _buckets; bucket++) 
                 {
-                    if (bucketData[channel].bucketA[i + j * width + bucket * size] > maxCount) 
+                    if (bucketData[channel].bucketA[i + j * _width + bucket * _size] > maxCount) 
                     {
-                        maxCount = bucketData[channel].bucketA[i + j * width + bucket * size];
+                        maxCount = bucketData[channel].bucketA[i + j * _width + bucket * _size];
                         maxBucket = static_cast<BucketType>(bucket);
                         maxTypeA = true;
                     }
-                    if (bucketData[channel].bucketB[i + j * width + bucket * size] > maxCount) 
+                    if (bucketData[channel].bucketB[i + j * _width + bucket * _size] > maxCount) 
                     {
-                        maxCount = bucketData[channel].bucketB[i + j * width + bucket * size];
+                        maxCount = bucketData[channel].bucketB[i + j * _width + bucket * _size];
                         maxBucket = static_cast<BucketType>(bucket);
                         maxTypeA = false;
                     }
@@ -219,26 +233,26 @@ void ImageProcessor::findBiggestBucket()
 
 void ImageProcessor::printPixelInformation(int x, int y) const
 {
-    int idx = x + y * width;
+    int idx = x + y * _width;
 
     std::cout << std::endl << "Pixel information for " << x << ", " << y << std::endl;
 
     std::cout << std::endl << "\tA Buckets: ";
-    for (int bucket = 0; bucket < buckets; bucket++)
+    for (int bucket = 0; bucket < _buckets; bucket++)
     {
-        std::cout << static_cast<int>(bucketData[0].bucketA[idx + bucket * size]) << " ";
+        std::cout << static_cast<int>(bucketData[0].bucketA[idx + bucket * _size]) << " ";
     }
 
     std::cout << std::endl << "\tB Buckets: ";
-    for (int bucket = 0; bucket < buckets; bucket++)
+    for (int bucket = 0; bucket < _buckets; bucket++)
     {
-        std::cout << static_cast<int>(bucketData[0].bucketB[idx + bucket * size]) << " ";
+        std::cout << static_cast<int>(bucketData[0].bucketB[idx + bucket * _size]) << " ";
     }
 
     std::cout << std::endl;
 }
 
-void ImageProcessor::firstPass(vec2d& acc, vec2d& total, std::vector<int>& count) const
+void ImageProcessor::firstPass(/*vec2d& acc, vec2d& total, std::vector<int>& count*/)
 {
     std::cout << std::endl << "1st pass:\t";
 
@@ -249,18 +263,18 @@ void ImageProcessor::firstPass(vec2d& acc, vec2d& total, std::vector<int>& count
         std::cout << "|" << std::flush;
 
 #pragma omp parallel for
-        for (int i = 0; i < width; i++) 
+        for (int i = 0; i < _width; i++) 
         {
-            for (int j = 0; j < height; j++) 
+            for (int j = 0; j < _height; j++) 
             {
-                int idx = i + j * width;
+                int idx = i + j * _width;
                 int hits = 0;
 
-                for (int channel = 0; channel < channels; channel++) 
+                for (int channel = 0; channel < _channels; channel++) 
                 {
                     int pixel = newImage(i, j, 0, channel);
 
-                    total[channel][idx] += pixel;
+                    _total[channel][idx] += pixel;
 
                     BucketEntry<unsigned char> entry = bucketData[channel].finalBucket[idx];
 
@@ -277,48 +291,48 @@ void ImageProcessor::firstPass(vec2d& acc, vec2d& total, std::vector<int>& count
                     hits++;
                 }
 
-                if (hits == channels) 
+                if (hits == _channels) 
                 {
-                    for (int k = 0; k < channels; k++) 
+                    for (int k = 0; k < _channels; k++) 
                     {
-                        acc[k][idx] += newImage(i, j, 0, k);
+                        _acc[k][idx] += newImage(i, j, 0, k);
                     }
 
-                    count[idx]++;
+                    _count[idx]++;
                 }
             }
         }
     }
 }
 
-void ImageProcessor::countFailed(vec2d& acc, std::vector<int>& count, std::vector<bool>& cleared, int confFrames, int& failed) const
+void ImageProcessor::countFailed(int confFrames, int& failed)
 {
 #pragma omp parallel for
-    for (int i = 0; i < width; i++) 
+    for (int i = 0; i < _width; i++) 
     {
-        for (int j = 0; j < height; j++) 
+        for (int j = 0; j < _height; j++) 
         {
-            int idx = i + j * width;
+            int idx = i + j * _width;
 
-            if (count[idx] < confFrames) 
+            if (_count[idx] < confFrames) 
             {
                 failed++;
-                count[idx] = 0;
+                _count[idx] = 0;
 
-                for (int channel = 0; channel < channels; channel++) 
+                for (int channel = 0; channel < _channels; channel++) 
                 {
-                    acc[channel][idx] = 0.0f;
+                    _acc[channel][idx] = 0.0f;
                 }
             }
             else
             {
-                cleared[idx] = true;
+                _cleared[idx] = true;
             }
         }
     }
 }
 
-void ImageProcessor::secondPass(vec2d& acc, std::vector<int>& count, std::vector<bool>& cleared) const
+void ImageProcessor::secondPass()
 {
     std::cout << std::endl << "2nd pass:\t";
 
@@ -329,13 +343,13 @@ void ImageProcessor::secondPass(vec2d& acc, std::vector<int>& count, std::vector
         std::cout << "|" << std::flush;
 
 #pragma omp parallel for
-        for (int i = 0; i < width; i++) 
+        for (int i = 0; i < _width; i++) 
         {
-            for (int j = 0; j < height; j++) 
+            for (int j = 0; j < _height; j++) 
             {
-                int idx = i + j * width;
+                int idx = i + j * _width;
 
-                if (cleared[idx])
+                if (_cleared[idx])
                 {
                     continue;
                 }
@@ -343,10 +357,10 @@ void ImageProcessor::secondPass(vec2d& acc, std::vector<int>& count, std::vector
                 int maxDiff = -1;
                 int maxChannel = -1;
 
-                std::vector<BucketEntry<unsigned char>> entry(channels);
-                std::vector<int> pixel(channels);
+                std::vector<BucketEntry<unsigned char>> entry(_channels);
+                std::vector<int> pixel(_channels);
 
-                for (int channel = 0; channel < channels; channel++) 
+                for (int channel = 0; channel < _channels; channel++) 
                 {
                     entry[channel] = bucketData[channel].finalBucket[idx];
                     pixel[channel] = newImage(i, j, 0, channel);
@@ -370,46 +384,46 @@ void ImageProcessor::secondPass(vec2d& acc, std::vector<int>& count, std::vector
                     continue;
                 }
 
-                for (int channel = 0; channel < channels; channel++) 
+                for (int channel = 0; channel < _channels; channel++) 
                 {
-                    acc[channel][idx] += pixel[channel];
+                    _acc[channel][idx] += pixel[channel];
                 }
 
-                count[idx]++;
+                _count[idx]++;
             }
         }
     }
 }
 
-void ImageProcessor::drawImages(vec2d& acc, vec2d& total, std::vector<int> count, int confFrames, int& firstPassFail, int& secondPassFail) const
+void ImageProcessor::drawImages(int confFrames, int& firstPassFail, int& secondPassFail)
 {
     // Paint the final result in a window
-    cimg_library::CImg<unsigned char> reconstructionImage(width, height, 1, 3, 0);
-    cimg_library::CImgDisplay mainDisp(width, height, "Reconstructed background");
+    cimg_library::CImg<unsigned char> reconstructionImage(_width, _height, 1, 3, 0);
+    cimg_library::CImgDisplay mainDisp(_width, _height, "Reconstructed background");
 
     // Paint the confidence mask
-    cimg_library::CImg<unsigned char> confidenceImage(width, height, 1, 3, 0);
-    cimg_library::CImgDisplay auxDisp(width, height, "Confidence mask");
+    cimg_library::CImg<unsigned char> confidenceImage(_width, _height, 1, 3, 0);
+    cimg_library::CImgDisplay auxDisp(_width, _height, "Confidence mask");
 
-    for (int i = 0; i < width; i++) 
+    for (int i = 0; i < _width; i++) 
     {
 #pragma omp parallel for
-        for (int j = 0; j < height; j++) 
+        for (int j = 0; j < _height; j++) 
         {
-            int idx = i + j * width;
+            int idx = i + j * _width;
 
-            reconstructionImage(i, j, 0, 0) = static_cast<unsigned char>(acc[0][idx] / count[idx]);
-            reconstructionImage(i, j, 0, 1) = static_cast<unsigned char>(acc[1][idx] / count[idx]);
-            reconstructionImage(i, j, 0, 2) = static_cast<unsigned char>(acc[2][idx] / count[idx]);
+            reconstructionImage(i, j, 0, 0) = static_cast<unsigned char>(_acc[0][idx] / _count[idx]);
+            reconstructionImage(i, j, 0, 1) = static_cast<unsigned char>(_acc[1][idx] / _count[idx]);
+            reconstructionImage(i, j, 0, 2) = static_cast<unsigned char>(_acc[2][idx] / _count[idx]);
 
-            int confidence = static_cast<int>(count[i + j * width] * (256.0f / frames));
+            int confidence = static_cast<int>(_count[i + j * _width] * (256.0f / _frames));
             confidence = std::min(confidence, 255);
 
             confidenceImage(i, j, 0, 0) = static_cast<unsigned char>(confidence);
             confidenceImage(i, j, 0, 1) = static_cast<unsigned char>(confidence);
             confidenceImage(i, j, 0, 2) = static_cast<unsigned char>(confidence);
 
-            if (count[idx] < confFrames) 
+            if (_count[idx] < confFrames) 
             {
                 secondPassFail++;
 
@@ -417,9 +431,9 @@ void ImageProcessor::drawImages(vec2d& acc, vec2d& total, std::vector<int> count
                 confidenceImage(i, j, 0, 1) /= 2;
                 confidenceImage(i, j, 0, 2) /= 2;
 
-                for (int channel = 0; channel < channels; channel++) 
+                for (int channel = 0; channel < _channels; channel++) 
                 {
-                    float val = static_cast<float>(total[channel][idx]) / frames;
+                    float val = static_cast<float>(_total[channel][idx]) / _frames;
                     reconstructionImage(i, j, 0, channel) = static_cast<unsigned char>(val);
                 }
             }
@@ -456,7 +470,7 @@ void ImageProcessor::drawImages(vec2d& acc, vec2d& total, std::vector<int> count
             int x = mainDisp.mouse_x();
             int y = mainDisp.mouse_y();
 
-            if (x >= 0 && x < width && y >= 0 && y < height) 
+            if (x >= 0 && x < _width && y >= 0 && y < _height) 
             {
                 printPixelInformation(x, y);
             }
@@ -465,31 +479,28 @@ void ImageProcessor::drawImages(vec2d& acc, vec2d& total, std::vector<int> count
 }
 
 // Create final color image and a confidence mask, then display them
-void ImageProcessor::createFinal() const
+void ImageProcessor::createFinal()
 {
     int firstPassFail = 0;
     int secondPassFail = 0;
 
-    int confFrames = static_cast<int>(std::floorf(confLevel * frames));
+    int confFrames = static_cast<int>(std::floorf(_confLevel * _frames));
     confFrames = std::max(confFrames, 1);
 
-    std::vector<std::vector<float>> acc;
-    std::vector<std::vector<float>> total;
+    //std::vector<std::vector<float>> acc;
+    //std::vector<std::vector<float>> total;
 
-    for (int channel = 0; channel < channels; channel++) 
+    for (int channel = 0; channel < _channels; channel++) 
     {
-        std::vector<float> tempAcc(size);
-        acc.push_back(tempAcc);
+        std::vector<float> tempAcc(_size);
+        _acc.push_back(tempAcc);
 
-        std::vector<float> tempTotal(size);
-        total.push_back(tempTotal);
+        std::vector<float> tempTotal(_size);
+        _total.push_back(tempTotal);
     }
 
-    std::vector<int> count(size);
-    std::vector<bool> cleared(size);
-
-    firstPass(acc, total, count);
-    countFailed(acc, count, cleared, confFrames, firstPassFail);
-    secondPass(acc, count, cleared);
-    drawImages(acc, total, count, confFrames, firstPassFail, secondPassFail);
+    firstPass(/*acc, total, count*/);
+    countFailed(/*acc, count, cleared, */confFrames, firstPassFail);
+    secondPass(/*acc, count, cleared*/);
+    drawImages(/*acc, total, count, */confFrames, firstPassFail, secondPassFail);
 }
