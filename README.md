@@ -10,11 +10,11 @@ Remove transient objects from an image sequence.
 
 Image sequence with a stable background and moving foreground objects.
 
+![image sequence](http://covex.info/images/east_imperial_anim.gif)
+
 ***Output***
 
 Single image of the background with transient details removed.
-
-![image sequence](http://covex.info/images/east_imperial_anim.gif)
 
 ![reconstructed background](http://covex.info/images/output.png)
 
